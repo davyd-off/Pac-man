@@ -102,9 +102,9 @@ def main():
                     running = False
                     break
             if game_pause == False:      
-                music = sdlmixer.Mix_LoadMUS(b"Source/Sound/A Touch Of Class - Around the World.mp3")               
+                music = sdlmixer.Mix_LoadMUS(b"Source/Sound/start.mp3")               
                 draw_board(renderer)
-                sdlmixer.Mix_PlayMusic(music, 1)
+                sdlmixer.Mix_PlayMusic(music, 0)
                 
 
                 

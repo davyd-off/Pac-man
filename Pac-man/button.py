@@ -47,7 +47,6 @@ class ImageButton:
     def render_button(self):
         for button, texture in self.buttons.items():
             self.renderer.copy(texture, dstrect=self.button_positions[button])
-        self.renderer.present()
 
    # def render_button_pause(self):
    #     for button_pause, texture_pause in self.buttons_pause.items():
