@@ -1,0 +1,144 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{sdl2} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{from} \PYG{n+nn}{sdl2.ext} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{import} \PYG{n+nn}{sdl2.sdlmixer} \PYG{k}{as} \PYG{n+nn}{sdlmixer}
+\PYG{k+kn}{from} \PYG{n+nn}{button} \PYG{k+kn}{import} \PYG{n}{ImageButton}
+\PYG{k+kn}{import} \PYG{n+nn}{player}
+\PYG{k+kn}{import} \PYG{n+nn}{level} \PYG{k}{as} \PYG{n+nn}{lvl}
+
+\PYG{c+c1}{\PYGZsh{} Создание аудиоканала}
+\PYG{n}{sdlmixer}\PYG{o}{.}\PYG{n}{Mix\PYGZus{}OpenAudio}\PYG{p}{(}\PYG{l+m+mi}{44100}\PYG{p}{,} \PYG{n}{sdlmixer}\PYG{o}{.}\PYG{n}{MIX\PYGZus{}DEFAULT\PYGZus{}FORMAT}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{1024}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Создание кадров в секунду (провально)}
+\PYG{n}{fps} \PYG{o}{=} \PYG{l+m+mi}{60}
+\PYG{n}{frameDelay} \PYG{o}{=} \PYG{l+m+mi}{1000} \PYG{o}{//} \PYG{n}{fps}
+\PYG{n}{frameStart} \PYG{o}{=} \PYG{k+kc}{None}
+\PYG{n}{frameTime} \PYG{o}{=} \PYG{k+kc}{None}
+
+\PYG{n}{WIDTH} \PYG{o}{=} \PYG{l+m+mi}{900}
+\PYG{n}{HEIGHT} \PYG{o}{=} \PYG{l+m+mi}{950}
+
+\PYG{n}{music\PYGZus{}theme} \PYG{o}{=} \PYG{n}{sdlmixer}\PYG{o}{.}\PYG{n}{Mix\PYGZus{}LoadMUS}\PYG{p}{(}\PYG{l+s+sa}{b}\PYG{l+s+s2}{\PYGZdq{}Source/Sound/start.mp3\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{main}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{} Переменные для работы с функциями игрока \PYGZsh{}}
+    \PYG{n}{count} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{n}{direction} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{n}{turns\PYGZus{}allowed} \PYG{o}{=} \PYG{p}{[}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{]}
+    \PYG{n}{player\PYGZus{}speed} \PYG{o}{=} \PYG{l+m+mi}{2}
+    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{n}{player\PYGZus{}x} \PYG{o}{=} \PYG{l+m+mi}{450}
+    \PYG{n}{player\PYGZus{}y} \PYG{o}{=} \PYG{l+m+mi}{663}
+    \PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+
+    \PYG{n}{init}\PYG{p}{()}
+
+    \PYG{n}{window} \PYG{o}{=} \PYG{n}{Window}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Pac\PYGZhy{}man\PYGZdq{}}\PYG{p}{,} \PYG{p}{(}\PYG{n}{WIDTH}\PYG{p}{,} \PYG{n}{HEIGHT}\PYG{p}{),} \PYG{n}{flags}\PYG{o}{=}\PYG{n}{SDL\PYGZus{}WINDOW\PYGZus{}RESIZABLE}\PYG{p}{)}
+    \PYG{n}{window}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+    \PYG{n}{render\PYGZus{}flags} \PYG{o}{=} \PYG{p}{(}\PYG{n}{SDL\PYGZus{}RENDERER\PYGZus{}ACCELERATED} \PYG{o}{|} \PYG{n}{SDL\PYGZus{}RENDERER\PYGZus{}PRESENTVSYNC}\PYG{p}{)}
+    \PYG{n}{renderer} \PYG{o}{=} \PYG{n}{Renderer}\PYG{p}{(}\PYG{n}{window}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{flags}\PYG{o}{=}\PYG{n}{render\PYGZus{}flags}\PYG{p}{)}
+    \PYG{n}{set\PYGZus{}texture\PYGZus{}scale\PYGZus{}quality}\PYG{p}{(}\PYG{n}{method}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}best\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Экземпляры класса кнопок (button)}
+    \PYG{n}{work\PYGZus{}button} \PYG{o}{=} \PYG{n}{ImageButton}\PYG{p}{(}\PYG{n}{window}\PYG{p}{,} \PYG{n}{renderer}\PYG{p}{,} \PYG{n}{WIDTH}\PYG{p}{,} \PYG{n}{HEIGHT}\PYG{p}{)}
+
+    \PYG{n}{main\PYGZus{}menu} \PYG{o}{=} \PYG{k+kc}{True}
+    \PYG{n}{game\PYGZus{}pause} \PYG{o}{=} \PYG{k+kc}{True}
+    \PYG{n}{sound\PYGZus{}check} \PYG{o}{=} \PYG{k+kc}{True}
+    \PYG{n}{running} \PYG{o}{=} \PYG{k+kc}{True}
+    \PYG{k}{while} \PYG{n}{running}\PYG{p}{:}
+        \PYG{n}{frameStart} \PYG{o}{=} \PYG{n}{SDL\PYGZus{}GetTicks}\PYG{p}{()}
+
+        \PYG{k}{if} \PYG{n}{main\PYGZus{}menu}\PYG{p}{:}
+            \PYG{n}{work\PYGZus{}button}\PYG{o}{.}\PYG{n}{render\PYGZus{}button}\PYG{p}{()}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{count} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{19}\PYG{p}{:}
+                \PYG{n}{count} \PYG{o}{+=} \PYG{l+m+mi}{1}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{count} \PYG{o}{=} \PYG{l+m+mi}{0}
+            \PYG{n}{lvl}\PYG{o}{.}\PYG{n}{draw\PYGZus{}board}\PYG{p}{(}\PYG{n}{renderer}\PYG{p}{,} \PYG{n}{WIDTH}\PYG{p}{,} \PYG{n}{HEIGHT}\PYG{p}{)}
+            \PYG{n}{player}\PYG{o}{.}\PYG{n}{draw}\PYG{p}{(}\PYG{n}{renderer}\PYG{p}{,} \PYG{n}{count}\PYG{p}{,} \PYG{n}{direction}\PYG{p}{,} \PYG{n}{player\PYGZus{}x}\PYG{p}{,} \PYG{n}{player\PYGZus{}y}\PYG{p}{)}
+            \PYG{n}{center\PYGZus{}x} \PYG{o}{=} \PYG{n}{player\PYGZus{}x} \PYG{o}{+} \PYG{l+m+mi}{23}
+            \PYG{n}{center\PYGZus{}y} \PYG{o}{=} \PYG{n}{player\PYGZus{}y} \PYG{o}{+} \PYG{l+m+mi}{24}
+            \PYG{n}{turns\PYGZus{}allowed} \PYG{o}{=} \PYG{n}{player}\PYG{o}{.}\PYG{n}{check\PYGZus{}position}\PYG{p}{(}\PYG{n}{center\PYGZus{}x}\PYG{p}{,} \PYG{n}{center\PYGZus{}y}\PYG{p}{,} \PYG{n}{direction}\PYG{p}{,} \PYG{n}{WIDTH}\PYG{p}{,} \PYG{n}{HEIGHT}\PYG{p}{,} \PYG{n}{lvl}\PYG{o}{.}\PYG{n}{level}\PYG{p}{)}
+            \PYG{n}{player\PYGZus{}x}\PYG{p}{,} \PYG{n}{player\PYGZus{}y} \PYG{o}{=} \PYG{n}{player}\PYG{o}{.}\PYG{n}{move}\PYG{p}{(}\PYG{n}{player\PYGZus{}x}\PYG{p}{,} \PYG{n}{player\PYGZus{}y}\PYG{p}{,} \PYG{n}{direction}\PYG{p}{,} \PYG{n}{turns\PYGZus{}allowed}\PYG{p}{,} \PYG{n}{player\PYGZus{}speed}\PYG{p}{)}
+                        
+
+        \PYG{n}{events} \PYG{o}{=} \PYG{n}{get\PYGZus{}events}\PYG{p}{()}
+            \PYG{c+c1}{\PYGZsh{} обработка событий}
+        \PYG{k}{for} \PYG{n}{event} \PYG{o+ow}{in} \PYG{n}{events}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} сюда пишутся все if}
+            \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{type} \PYG{o}{==} \PYG{n}{SDL\PYGZus{}QUIT}\PYG{p}{:}
+                \PYG{n}{running} \PYG{o}{=} \PYG{k+kc}{False}
+                \PYG{k}{break}
+            
+            \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{type} \PYG{o}{==} \PYG{n}{SDL\PYGZus{}MOUSEBUTTONDOWN}\PYG{p}{:}   \PYG{c+c1}{\PYGZsh{} нажатие кнопок меню}
+                \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{n}{event}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{event}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{y}
+                \PYG{k}{if} \PYG{n}{WIDTH} \PYG{o}{//} \PYG{l+m+mi}{4} \PYG{o}{\PYGZlt{}=} \PYG{n}{x} \PYG{o}{\PYGZlt{}=} \PYG{l+m+mi}{618} \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{4}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{96} \PYG{o}{\PYGZlt{}=} \PYG{n}{y} \PYG{o}{\PYGZlt{}=} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{4}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{144}\PYG{p}{:}
+                    \PYG{n}{main\PYGZus{}menu} \PYG{o}{=} \PYG{k+kc}{False}
+                    \PYG{n}{work\PYGZus{}button}\PYG{o}{.}\PYG{n}{play\PYGZus{}sound}\PYG{p}{()}
+                    \PYG{n}{work\PYGZus{}button}\PYG{o}{.}\PYG{n}{render\PYGZus{}clean}\PYG{p}{()}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Start Game button pressed\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{WIDTH} \PYG{o}{//} \PYG{l+m+mi}{4} \PYG{o}{\PYGZlt{}=} \PYG{n}{x} \PYG{o}{\PYGZlt{}=} \PYG{l+m+mi}{762} \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{2}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{48} \PYG{o}{\PYGZlt{}=} \PYG{n}{y} \PYG{o}{\PYGZlt{}=} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{2}\PYG{p}{):}
+                    \PYG{n}{work\PYGZus{}button}\PYG{o}{.}\PYG{n}{play\PYGZus{}sound}\PYG{p}{()}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Help button pressed\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{WIDTH} \PYG{o}{//} \PYG{l+m+mi}{4} \PYG{o}{\PYGZlt{}=} \PYG{n}{x} \PYG{o}{\PYGZlt{}=} \PYG{l+m+mi}{438} \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{2}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{48} \PYG{o}{\PYGZlt{}=} \PYG{n}{y} \PYG{o}{\PYGZlt{}=} \PYG{p}{(}\PYG{n}{HEIGHT} \PYG{o}{//} \PYG{l+m+mi}{2}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{96}\PYG{p}{:}
+                    \PYG{n}{work\PYGZus{}button}\PYG{o}{.}\PYG{n}{play\PYGZus{}sound}\PYG{p}{()}
+                    \PYG{n}{running} \PYG{o}{=} \PYG{k+kc}{False}
+                    \PYG{k}{break}
+ 
+            \PYG{k}{if} \PYG{n}{main\PYGZus{}menu} \PYG{o}{==} \PYG{k+kc}{False}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{sound\PYGZus{}check}\PYG{p}{:}
+                    \PYG{n}{sdlmixer}\PYG{o}{.}\PYG{n}{Mix\PYGZus{}PlayMusic}\PYG{p}{(}\PYG{n}{music\PYGZus{}theme}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}
+                    \PYG{n}{sound\PYGZus{}check} \PYG{o}{=} \PYG{k+kc}{False}
+
+            \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{type} \PYG{o}{==} \PYG{n}{SDL\PYGZus{}KEYDOWN}\PYG{p}{:}   \PYG{c+c1}{\PYGZsh{} нажатие на стрелочки}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}RIGHT}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{l+m+mi}{0}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}LEFT}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{l+m+mi}{1}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}UP}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{l+m+mi}{2}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}DOWN}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{l+m+mi}{3}
+            \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{type} \PYG{o}{==} \PYG{n}{SDL\PYGZus{}KEYUP}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}RIGHT} \PYG{o+ow}{and} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{n}{direction}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}LEFT} \PYG{o+ow}{and} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{n}{direction}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}UP} \PYG{o+ow}{and} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{n}{direction}
+                \PYG{k}{if} \PYG{n}{event}\PYG{o}{.}\PYG{n}{key}\PYG{o}{.}\PYG{n}{keysym}\PYG{o}{.}\PYG{n}{sym} \PYG{o}{==} \PYG{n}{SDLK\PYGZus{}DOWN} \PYG{o+ow}{and} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{3}\PYG{p}{:}
+                    \PYG{n}{direction\PYGZus{}command} \PYG{o}{=} \PYG{n}{direction}
+        \PYG{k}{if} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{0} \PYG{o+ow}{and} \PYG{n}{turns\PYGZus{}allowed}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]:}
+            \PYG{n}{direction} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{k}{if} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{1} \PYG{o+ow}{and} \PYG{n}{turns\PYGZus{}allowed}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]:}
+            \PYG{n}{direction} \PYG{o}{=} \PYG{l+m+mi}{1}
+        \PYG{k}{if} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{2} \PYG{o+ow}{and} \PYG{n}{turns\PYGZus{}allowed}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]:}
+            \PYG{n}{direction} \PYG{o}{=} \PYG{l+m+mi}{2}
+        \PYG{k}{if} \PYG{n}{direction\PYGZus{}command} \PYG{o}{==} \PYG{l+m+mi}{3} \PYG{o+ow}{and} \PYG{n}{turns\PYGZus{}allowed}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]:}
+            \PYG{n}{direction} \PYG{o}{=} \PYG{l+m+mi}{3}
+
+        \PYG{k}{if} \PYG{n}{player\PYGZus{}x} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{900}\PYG{p}{:}
+            \PYG{n}{player\PYGZus{}x} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{47}
+        \PYG{k}{elif} \PYG{n}{player\PYGZus{}x} \PYG{o}{\PYGZlt{}} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{50}\PYG{p}{:}
+            \PYG{n}{player\PYGZus{}x} \PYG{o}{=} \PYG{l+m+mi}{897}
+                   
+
+        
+        \PYG{n}{renderer}\PYG{o}{.}\PYG{n}{present}\PYG{p}{()}
+        \PYG{n}{renderer}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()} 
+       \PYG{c+c1}{\PYGZsh{} SDL\PYGZus{}Delay(16)}
+        
+        \PYG{n}{frameTime} \PYG{o}{=} \PYG{n}{SDL\PYGZus{}GetTicks}\PYG{p}{()} \PYG{o}{\PYGZhy{}} \PYG{n}{frameStart}
+        \PYG{c+c1}{\PYGZsh{}print(frameTime)  \PYGZsh{} вывод в терминал количества каров в окне}
+        \PYG{k}{if} \PYG{n}{frameDelay} \PYG{o}{\PYGZgt{}} \PYG{n}{frameTime}\PYG{p}{:}
+            \PYG{n}{SDL\PYGZus{}Delay}\PYG{p}{(}\PYG{n}{frameDelay} \PYG{o}{\PYGZhy{}} \PYG{n}{frameTime}\PYG{p}{)}
+    \PYG{n}{quit}\PYG{p}{()}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{n}{main}\PYG{p}{()}
+\end{Verbatim}

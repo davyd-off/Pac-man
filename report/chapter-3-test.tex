@@ -1,27 +1,36 @@
-\chapter{\label{ch:ch02}ГЛАВА 2. ПРАКТИЧЕСКАЯ ЧАСТЬ. ЭТАПЫ РАЗРАБОТКИ ИГРЫ.}
+\chapter{\label{ch:ch03}ГЛАВА 3. ПРОВЕРКА РАБОТОСПОСБНОСТИ ПРОГРАММЫ.}
 
-\section{\label{sec:ch02/sec01}Раздел 1}
+Пример ссылок:
+\begin{enumerate}
+\item на главу~\ref{ch:ch01};
+\item на раздел~\ref{sec:ch01/sec01} главы~\ref{ch:ch01};
+\item на раздел~\ref{sec:ch02/sec01} главы~\ref{ch:ch02};
+\item на приложение на странице~\pageref{appendix1};
+\item на код на странице~\pageref{code:pi-example}.
+\end{enumerate}
 
-\subsection{\label{subsec:ch02/sec01/sub01}Подраздел 1}
+\section{\label{sec:ch03/sec01}Раздел 1}
 
-Пример ссылки на рисунок в документе~\ref{fig:example03}.
+\subsection{\label{subsec:ch03/sec01/sub01}Подраздел 1}
+
+\subsection{\label{subsec:ch03/sec01/sub02}Подраздел 2}
+
+\section{\label{sec:ch03/sec02}Раздел 2}
+
+\subsection{\label{subsec:ch03/sec02/sub01}Подраздел 1}
+
+\subsection{\label{subsec:ch03/sec02/sub02}Подраздел 2}
+
+Пример ссылки на рисунок в документе~\ref{fig:example05}.
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{./images/fibonacci.png}
-    \caption{\centering\label{fig:example03}Пример рисунка в формате PNG.}
+    \caption{\centering\label{fig:example05}Пример рисунка в формате PNG.}
 \end{figure}
 
-\subsection{\label{subsec:ch02/sec01/sub02}Подраздел 2}
-
-\section{\label{sec:ch02/sec02}Раздел 2}
-
-\subsection{\label{subsec:ch02/sec02/sub01}Подраздел 1}
-
-\subsection{\label{subsec:ch02/sec02/sub02}Подраздел 2}
-
-Пример ссылки на таблицу в документе~\ref{tab:example03}.
+Пример ссылки на таблицу в документе~\ref{tab:example05}.
 \begin{table}[H]
-\caption{\label{tab:example03}Системные требования}
+\caption{\centering\label{tab:example05}Системные требования}
 \begin{tabular}{|p{3 cm}|p{3 cm}|p{3 cm}|p{5 cm}|}
 \hline
 Минимальные требования & 1 & 2 & 3 \\ \hline
@@ -31,9 +40,9 @@
 \end{tabular}
 \end{table}
 
-Пример ссылки на таблицу в документе~\ref{tab:example04}.
+Пример ссылки на таблицу в документе~\ref{tab:example06}.
 \begin{table}[H]
-\caption{\centering\label{tab:example04}Системные требования}
+\caption{\centering\label{tab:example06}Системные требования}
 \begin{tabular}{|p{3 cm}|p{3 cm}|p{3 cm}|p{5 cm}|}
 \hline
 Минимальные требования & 1 & 2 & 3 \\ \hline
@@ -43,9 +52,9 @@
 \end{tabular}
 \end{table}
 
-Пример использования minted для оформления кода и ссылка на этот код~\ref{code:example03}.
+Пример использования minted для оформления кода и ссылка на этот код~\ref{code:example05}.
 \begin{code}
-\captionof{listing}{\centering\label{code:example03}Вычисление последовательности Фибоначчи}
+\captionof{listing}{\centering\label{code:example05}Вычисление последовательности Фибоначчи}
 \vspace{-\baselineskip}\begin{minted}{C}
 #include <stdio.h>
 #include <omp.h>
@@ -72,9 +81,9 @@ int main(int argc, char *argv[]) {
 \end{minted}
 \end{code}
 
-Пример использования minted для оформления кода и ссылка на этот код~\ref{code:example04}.
+Пример использования minted для оформления кода и ссылка на этот код~\ref{code:example06}.
 \begin{code}
-\captionof{listing}{\centering\label{code:example04}Сложение двух массивов параллельно десятью потоками (пример из https://ru.wikipedia.org/wiki/OpenMP)}
+\captionof{listing}{\centering\label{code:example06}Сложение двух массивов параллельно десятью потоками (пример из https://ru.wikipedia.org/wiki/OpenMP)}
 \vspace{-\baselineskip}\begin{minted}{C}
 #include <stdio.h>
 #include <omp.h>

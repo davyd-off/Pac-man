@@ -75,18 +75,11 @@ Along with this, a program health check, a UML diagram, and the full program cod
 % Подключение первой главы (теория):
 \include{chapter-1-theory.tex}
 % Подключение второй главы (практическая часть):
-\include{chapter-2-practice.tex}
-% Подключение третий главы (практическая часть с тестированием:
-\include{chapter-3-practice-test.tex}
+\include{chapter-2-practice.tex} 
+\include{chapter-3-test.tex}
 
 \chapter*{Заключение}
 \phantomsection\addcontentsline{toc}{chapter}{ЗАКЛЮЧЕНИЕ}
-
-\begin{enumerate}
-\item Пример ссылки на электронный источник~\cite{wikiRUBitbucket,wikiRUIdSoftware,wikiRUGitHub}.
-\item Пример ссылки на книгу одного автора~\cite{book1author}.
-\item Пример ссылки на книгу 5-ти и более авторов~\cite{book5author}.
-\end{enumerate}
 
 \newpage
 \phantomsection\addcontentsline{toc}{chapter}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ}
@@ -95,18 +88,13 @@ Along with this, a program health check, a UML diagram, and the full program cod
 \appendix
 \newpage
 \chapter*{\raggedleft\label{appendix1}Приложение}
-\phantomsection\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ}
-%\section*{\centering\label{code:appendix}Текст программы}
-
-\begin{center}
-\label{code:appendix}Текст программы
-\end{center}
+\addcontentsline{toc}{chapter}{Приложение}
 
 \begin{code}
-\captionof*{listing}{\centering\label{code:pi-example}Пример программы вычисления числа $\pi$ на языке \textit{C} с использованием \textit{MPI} (пример из https://ru.wikipedia
-.org/wiki/Message\_Passing\_Interface)}
-\vspace{-1cm}\inputminted{C}{src/pi-mpi.c}
+	\captionof*{listing}{Главный файл игры Pac-Man на языке \textit{Python} с использованием библиотеки \textit{PySDL2}~\pageref{pysdl2}.}\label{code:main}
+	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/main.py}
 \end{code}
+
 
 \end{document}
 

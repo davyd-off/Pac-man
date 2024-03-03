@@ -3524,11 +3524,15 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">graduate-students.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">wikiRUBitbucket</bcf:citekey>
-    <bcf:citekey order="1" intorder="2">wikiRUIdSoftware</bcf:citekey>
-    <bcf:citekey order="1" intorder="3">wikiRUGitHub</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">book1author</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">book5author</bcf:citekey>
+    <bcf:citekey order="1" intorder="1">pypiRUENpysdl2</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">docENpysdl2</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">texRUtexstud</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">texENtexstud</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">texRUtexlive</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">vscodeEN</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">adobeRU</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">wikiRUGitHub</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">pacmanRU</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
