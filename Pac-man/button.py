@@ -19,27 +19,15 @@ class ImageButton:
         
         self.buttons = {
             "Начать игру": self.factory.from_text("Начать игру", fontmanager=self.font_manager),
-            "Таблица лидеров": self.factory.from_text("Таблица лидеров", fontmanager=self.font_manager),
             "Помощь": self.factory.from_text("Помощь", fontmanager=self.font_manager),
             "Выход": self.factory.from_text("Выход", fontmanager=self.font_manager)
         }
-
-      #  self.buttons_pause = {
-       #     "Продолжить": self.factory.from_text("Продолжить", fontmanager=self.font_manager),
-       #     "Выход": self.factory.from_text("Выход", fontmanager=self.font_manager)
-      #  }
         
         self.button_positions = {
             "Начать игру": (w // 4, (h // 4) + 96),
-            "Таблица лидеров": (w // 4, (h // 2) - 48),
-            "Помощь": (w // 4, (h // 2) + 48),
-            "Выход": (w // 4, (h // 2) + 144)
+            "Помощь": (w // 4, (h // 2) - 48),
+            "Выход": (w // 4, (h // 2) + 48),
         }
-
-       # self.button_pause_positions = {
-       #     "Продолжить": (w // 4, (h // 2) - 48),
-       #     "Выход": (w // 4, (h // 2) + 48),
-       # }
 
     def play_sound(self):
         sdlmixer.Mix_PlayMusic(self.music, 0)
@@ -47,11 +35,6 @@ class ImageButton:
     def render_button(self):
         for button, texture in self.buttons.items():
             self.renderer.copy(texture, dstrect=self.button_positions[button])
-
-   # def render_button_pause(self):
-   #     for button_pause, texture_pause in self.buttons_pause.items():
-   #         self.renderer.copy(texture_pause, dstrect=self.button_pause_positions[button_pause])
-   #     self.renderer.present()
 
     def render_clean(self):
         self.renderer.clear(self.bg_color2)
