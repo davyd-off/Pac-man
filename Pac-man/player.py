@@ -4,8 +4,9 @@ from sdl2.ext import *
 player_images = []
 for i in range(1, 5):
     player_images.append(load_image(f'Source/Images/pacman_{i}.png'))
+player_images.append(load_image(f'Source/Images/pacman_live.png'))
 
-def draw(renderer, count, direction, player_x, player_y):
+def draw_player(renderer, count, direction, player_x, player_y):
     """
     Рисовалка пакмана.
     0 - право, 1 - лево, 2 - вверх, 3 - вниз
@@ -86,3 +87,39 @@ def move(play_x, play_y, direction, turns_allowed, player_speed):
     elif direction == 3 and turns_allowed[3]:
         play_y += player_speed
     return play_x, play_y
+
+def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, power, power_cnt, dead_ghosts):
+    """"
+    Пожирание точек.
+    """
+    num1 = (HEIGHT - 50) // 32
+    num2 = WIDTH // 30
+    if 0 < player_x < 870:
+        if level[center_y//num1][center_x//num2] == 1:
+            level[center_y//num1][center_x//num2] = 0
+            score += 10
+        if level[center_y//num1][center_x//num2] == 2:
+            level[center_y//num1][center_x//num2] = 0
+            score += 50
+            power = True
+            power_cnt = 0
+            dead_ghosts = [False, False, False, False]
+    return score, power, power_cnt, dead_ghosts
+
+def draw_counter(renderer, scor, power, live):
+    """
+    Отрисовка счетчика.
+    """
+    text_color = Color(255, 255, 255)
+    font = FontTTF("./Source/Font/better-vcr-5.4.ttf", "15px", text_color)
+
+    txt = f'Score: {scor}'
+    txt_rendered = font.render_text(txt)
+    tx_text = Texture(renderer, txt_rendered)
+    renderer.copy(tx_text, dstrect=(10, 920))
+    if power:
+        tx_power = Texture(renderer, load_image(b"Source/Images/power.png"))
+        renderer.copy(tx_power, dstrect=(140, 915))
+    tx_live = Texture(renderer, player_images[4])
+    for i in range(live):
+        renderer.copy(tx_live, dstrect=(650 + i * 40, 915))

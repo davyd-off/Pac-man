@@ -1,3 +1,4 @@
+import sys
 from sdl2 import *
 from sdl2.ext import *
 import sdl2.sdlmixer as sdlmixer
@@ -19,8 +20,8 @@ HEIGHT = 950
 
 music_theme = sdlmixer.Mix_LoadMUS(b"Source/Sound/start.mp3")
 
-
 def main():
+    flicker = False
     # Переменные для работы с функциями игрока #
     count = 0
     direction = 0
@@ -29,15 +30,27 @@ def main():
     direction_command = 0
     player_x = 450
     player_y = 663
+    score = 0
+    powerup = False
+    power_count = 0
+    dead_ghost = [False, False, False, False]
+    moving = False
+    start_count = 0
+    lives = 3
     #############################################
 
     init()
-
+    
     window = Window("Pac-man", (WIDTH, HEIGHT), flags=SDL_WINDOW_RESIZABLE)
     window.show()
-
-    render_flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
-    renderer = Renderer(window, -1, flags=render_flags)
+    
+    if "-hardware" in sys.argv:
+        print(1)
+        render_flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
+    else:
+        print(0)
+        render_flags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
+    renderer = Renderer(window, backend=-1, flags=render_flags)
     set_texture_scale_quality(method="best")
 
     # Экземпляры класса кнопок (button)
@@ -55,15 +68,33 @@ def main():
         else:
             if count < 19:
                 count += 1
+                if count > 3:
+                    flicker = False
             else:
                 count = 0
-            lvl.draw_board(renderer, WIDTH, HEIGHT)
-            player.draw(renderer, count, direction, player_x, player_y)
+                flicker = True
+            if powerup and power_count < 600:
+                power_count += 1
+            elif powerup and power_count >= 600:
+                power_count = 0
+                powerup = False
+                dead_ghost = [False, False, False, False]
+            if start_count < 56:
+                moving = False
+                start_count += 1
+            else:
+                moving = True
+
+            lvl.draw_board(renderer, WIDTH, HEIGHT, flicker)
+            player.draw_player(renderer, count, direction, player_x, player_y)
+            player.draw_counter(renderer, score, powerup, lives)
             center_x = player_x + 23
             center_y = player_y + 24
             turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, lvl.level)
-            player_x, player_y = player.move(player_x, player_y, direction, turns_allowed, player_speed)
-                        
+            if moving:
+                player_x, player_y = player.move(player_x, player_y, direction, turns_allowed, player_speed)
+            score, powerup, power_count, dead_ghost = player.check_target(lvl.level, WIDTH, HEIGHT, score, player_x, center_x, center_y,
+                                                                          powerup, power_count, dead_ghost)       
 
         events = get_events()
             # обработка событий
@@ -126,15 +157,17 @@ def main():
             player_x = 897
                    
 
-        
+         
         renderer.present()
-        renderer.clear() 
+        renderer.clear()
        # SDL_Delay(16)
         
         frameTime = SDL_GetTicks() - frameStart
         #print(frameTime)  # вывод в терминал количества каров в окне
-        if frameDelay > frameTime:
-            SDL_Delay(frameDelay - frameTime)
+        #if frameDelay > frameTime:
+        #    SDL_Delay(frameDelay - frameTime)
+    renderer.destroy()
+    window.close()
     quit()
 
 
