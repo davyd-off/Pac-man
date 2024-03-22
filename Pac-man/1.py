@@ -20,6 +20,93 @@ WIDTH = 900
 HEIGHT = 950
 
 music_theme = sdlmixer.Mix_LoadMUS(b"Source/Sound/start.mp3")
+blinky_tx = load_image(f'Source/Images/blinky.png')
+pinky_tx = load_image(f'Source/Images/pinky.png')
+inky_tx = load_image(f'Source/Images/inky.png')
+clyde_tx = load_image(f'Source/Images/clyde.png')
+
+flicker = False
+# Переменные для работы с функциями пакмана #
+count = 0
+direction = 0
+turns_allowed = [False, False, False, False]
+player_speed = 2
+direction_command = 0
+player_x = 450
+player_y = 663
+score = 0
+powerup = False
+power_count = 0
+dead_ghost = [False, False, False, False]
+moving = False
+start_count = 0
+lives = 3
+#############################################
+
+# Переменные для работы с функциями призраков #
+blinky_x = 56
+blinky_y = 58
+blinky_direction = 0
+inky_x = 440
+inky_y = 388
+inky_direction = 2
+pinky_x = 440
+pinky_y = 438
+pinky_direction = 2
+clyde_x = 440
+clyde_y = 438
+clyde_direction = 2
+targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
+blinky_dead = False
+inky_dead = False
+pinky_dead = False
+clyde_dead = False
+blinky_box = False
+inky_box = False
+pinky_box = False
+clyde_box = False
+ghost_speed = 2
+###############################################
+
+death_ghost_tx = load_image(f'Source/Images/death_ghost.png')
+eye_tx = load_image(f'Source/Images/eye.png')
+
+class Ghost:
+    def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id, renderer):
+        self.x_pos = x_coord
+        self.y_pos = y_coord
+        self.center_x = self.x_pos + 22
+        self.center_y = self.y_pos + 22
+        self.target = target
+        self.speed = speed
+        self.img = img
+        self.direction = direct
+        self.dead = dead
+        self.in_box = box
+        self.id = id
+        self.turns, self.in_box = self.check_collisions()
+        self.rect = self.draw_ghost()
+
+    def draw_ghost(self):
+        if (not powerup and not self.dead) or (dead_ghost[self.id] and powerup and not self.dead):
+            self.renderer.copy(self.img, dstrect=(self.x_pos, self.y_pos))
+        elif powerup and not self.dead and not dead_ghost[self.id]:
+            self.renderer.copy(death_ghost_tx, dstrect=(self.x_pos, self.y_pos))
+        else:
+            self.renderer.copy(eye_tx, dstrect=(self.x_pos, self.y_pos))
+        
+        ghost_rect = SDL_Rect
+        ghost_rect.x = self.center_x - 18
+        ghost_rect.y = self.center_y - 18
+        ghost_rect.w = 36
+        ghost_rect.h = 36
+        return ghost_rect
+    
+    def check_collisions(self):
+        self.turns = [False, False, False, False]
+        self.in_box = True
+
+        return self.turns, self.in_box
 
 def main():
     init()
@@ -35,55 +122,6 @@ def main():
         render_flags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
     renderer = Renderer(window, backend=-1, flags=render_flags)
     set_texture_scale_quality(method="best")
-
-    flicker = False   # для моргания жирных точек
-    # Переменные для работы с функциями пакмана #
-    count = 0
-    direction = 0
-    turns_allowed = [False, False, False, False]
-    player_speed = 2
-    direction_command = 0
-    player_x = 450
-    player_y = 663
-    score = 0
-    powerup = False
-    power_count = 0
-    dead_ghost = [False, False, False, False]
-    moving = False
-    start_count = 0
-    lives = 3
-    #############################################
-
-    # Переменные для работы с функциями призраков #
-    blinky_tx = Texture(renderer, load_image(b"Source/Images/blinky.png"))
-    inky_tx = Texture(renderer, load_image(b"Source/Images/inky.png"))
-    pinky_tx = Texture(renderer, load_image(b"Source/Images/pinky.png"))
-    clyde_tx = Texture(renderer, load_image(b"Source/Images/clyde.png"))
-    death_ghost_tx = Texture(renderer, load_image(b"Source/Images/death_ghost.png"))
-    eye_tx = Texture(renderer, load_image(b"Source/Images/eye.png"))
-    blinky_x = 56
-    blinky_y = 58
-    blinky_direction = 0
-    inky_x = 440
-    inky_y = 388
-    inky_direction = 2
-    pinky_x = 440
-    pinky_y = 438
-    pinky_direction = 2
-    clyde_x = 440
-    clyde_y = 438
-    clyde_direction = 2
-    targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
-    blinky_dead = False
-    inky_dead = False
-    pinky_dead = False
-    clyde_dead = False
-    blinky_box = False
-    inky_box = False
-    pinky_box = False
-    clyde_box = False
-    ghost_speed = 2
-    ###############################################
 
     # Экземпляры класса кнопок (button)
     work_button = ImageButton(window, renderer, WIDTH, HEIGHT)
@@ -120,14 +158,10 @@ def main():
             lvl.draw_board(renderer, WIDTH, HEIGHT, flicker)
             player.draw_player(renderer, count, direction, player_x, player_y)
 
-            blinky = Ghost(blinky_x, blinky_y, targets[0], ghost_speed, blinky_tx, blinky_direction,
-                           blinky_dead, blinky_box, 0, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            inky = Ghost(inky_x, inky_y, targets[1], ghost_speed, inky_tx, inky_direction,
-                         inky_dead, inky_box, 1, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            pinky = Ghost(pinky_x, pinky_y, targets[2], ghost_speed, pinky_tx, pinky_direction,
-                          pinky_dead, pinky_box, 2, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            clyde = Ghost(clyde_x, clyde_y, targets[3], ghost_speed, clyde_tx, clyde_direction,
-                          clyde_dead, clyde_box, 3, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            blinky = Ghost(blinky_x, blinky_y, targets[0], ghost_speed, blinky_tx, blinky_direction, blinky_dead, blinky_box, 0)
+            inky = Ghost(inky_x, inky_y, targets[1], ghost_speed, inky_tx, inky_direction, inky_dead, inky_box, 1)
+            pinky = Ghost(pinky_x, pinky_y, targets[2], ghost_speed, pinky_tx, pinky_direction, pinky_dead, pinky_box, 2)
+            clyde = Ghost(clyde_x, clyde_y, targets[3], ghost_speed, clyde_tx, clyde_direction, clyde_dead, clyde_box, 3)
 
             player.draw_counter(renderer, score, powerup, lives)
             center_x = player_x + 23
