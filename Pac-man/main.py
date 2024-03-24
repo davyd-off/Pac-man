@@ -2,6 +2,7 @@ import sys
 from sdl2 import *
 from sdl2.ext import *
 import sdl2.sdlmixer as sdlmixer
+import sdl2.sdlgfx as sdlgfx
 from button import ImageButton
 import player
 import level as lvl
@@ -9,6 +10,8 @@ from ghost import Ghost
 
 # Создание аудиоканала
 sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, 2, 1024)
+
+circle_color = 0xFFFFFFFF	
 
 # Создание кадров в секунду (провально)
 fps = 60
@@ -85,6 +88,22 @@ def main():
     ghost_speed = 2
     ###############################################
 
+    # Переменные для проверки столкновений
+    cX_b = 0
+    cY_b = 0
+    cX_i = 0
+    cY_i = 0
+    cX_p = 0
+    cY_p = 0
+    cX_c = 0
+    cY_c = 0
+    dist_b = 0
+    dist_i = 0
+    dist_p = 0
+    dist_c = 0
+    radius = 0
+    #
+
     # Экземпляры класса кнопок (button)
     work_button = ImageButton(window, renderer, WIDTH, HEIGHT)
 
@@ -120,23 +139,194 @@ def main():
             lvl.draw_board(renderer, WIDTH, HEIGHT, flicker)
             player.draw_player(renderer, count, direction, player_x, player_y)
 
-            blinky = Ghost(blinky_x, blinky_y, targets[0], ghost_speed, blinky_tx, blinky_direction,
-                           blinky_dead, blinky_box, 0, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            inky = Ghost(inky_x, inky_y, targets[1], ghost_speed, inky_tx, inky_direction,
-                         inky_dead, inky_box, 1, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            pinky = Ghost(pinky_x, pinky_y, targets[2], ghost_speed, pinky_tx, pinky_direction,
-                          pinky_dead, pinky_box, 2, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            clyde = Ghost(clyde_x, clyde_y, targets[3], ghost_speed, clyde_tx, clyde_direction,
-                          clyde_dead, clyde_box, 3, renderer, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            blinky = Ghost(WIDTH, HEIGHT, blinky_x, blinky_y, targets[0], ghost_speed, blinky_tx, blinky_direction,
+                           blinky_dead, blinky_box, 0, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            inky = Ghost(WIDTH, HEIGHT, inky_x, inky_y, targets[1], ghost_speed, inky_tx, inky_direction,
+                         inky_dead, inky_box, 1, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            pinky = Ghost(WIDTH, HEIGHT, pinky_x, pinky_y, targets[2], ghost_speed, pinky_tx, pinky_direction,
+                          pinky_dead, pinky_box, 2, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            clyde = Ghost(WIDTH, HEIGHT, clyde_x, clyde_y, targets[3], ghost_speed, clyde_tx, clyde_direction,
+                          clyde_dead, clyde_box, 3, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
 
             player.draw_counter(renderer, score, powerup, lives)
+            targets = player.get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
+                                         player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde)
             center_x = player_x + 23
             center_y = player_y + 24
             turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, lvl.level)
+
+            # хитбокс пакмана
+            player_rect = SDL_Rect(center_x - 18, center_y - 18, 36, 36)
+            
             if moving:
                 player_x, player_y = player.move(player_x, player_y, direction, turns_allowed, player_speed)
+
+                blinky_x, blinky_y, blinky_direction = blinky.move_clyde()
+                pinky_x, pinky_y, pinky_direction = pinky.move_clyde()
+                inky_x, inky_y, inky_direction = inky.move_clyde()
+                clyde_x, clyde_y, clyde_direction = clyde.move_clyde()
+
             score, powerup, power_count, dead_ghost = player.check_target(lvl.level, WIDTH, HEIGHT, score, player_x, center_x, center_y,
-                                                                          powerup, power_count, dead_ghost)       
+                                                                          powerup, power_count, dead_ghost)
+
+            if not powerup:
+                if SDL_HasIntersection(player_rect, blinky.rect) and not blinky.dead or SDL_HasIntersection(player_rect, inky.rect) and not inky.dead or \
+                        SDL_HasIntersection(player_rect, pinky.rect) and not pinky.dead or SDL_HasIntersection(player_rect, clyde.rect) and not clyde.dead:
+                    if lives > 0:
+                        lives -= 1
+                        start_count = 0
+                        powerup = False
+                        power_count = 0
+                        player_x = 450
+                        player_y = 663
+                        direction = 0
+                        direction_command = 0
+                        blinky_x = 56
+                        blinky_y = 58
+                        blinky_direction = 0
+                        inky_x = 440
+                        inky_y = 388
+                        inky_direction = 2
+                        pinky_x = 440
+                        pinky_y = 438
+                        pinky_direction = 2
+                        clyde_x = 440
+                        clyde_y = 438
+                        clyde_direction = 2
+                        dead_ghost = [False, False, False, False]
+                        blinky_dead = False
+                        inky_dead = False
+                        pinky_dead = False
+                        clyde_dead = False
+            if powerup and SDL_HasIntersection(player_rect, blinky.rect) and dead_ghost[0] and not blinky.dead:
+                if lives > 0:
+                    powerup = False
+                    power_count = 0
+                    lives -= 1
+                    start_count = 0
+                    player_x = 450
+                    player_y = 663
+                    direction = 0
+                    direction_command = 0
+                    blinky_x = 56
+                    blinky_y = 58
+                    blinky_direction = 0
+                    inky_x = 440
+                    inky_y = 388
+                    inky_direction = 2
+                    pinky_x = 440
+                    pinky_y = 438
+                    pinky_direction = 2
+                    clyde_x = 440
+                    clyde_y = 438
+                    clyde_direction = 2
+                    dead_ghost = [False, False, False, False]
+                    blinky_dead = False
+                    inky_dead = False
+                    pinky_dead = False
+                    clyde_dead = False
+            if powerup and SDL_HasIntersection(player_rect, inky.rect) and dead_ghost[1] and not inky.dead:
+                if lives > 0:
+                    powerup = False
+                    power_count = 0
+                    lives -= 1
+                    start_count = 0
+                    player_x = 450
+                    player_y = 663
+                    direction = 0
+                    direction_command = 0
+                    blinky_x = 56
+                    blinky_y = 58
+                    blinky_direction = 0
+                    inky_x = 440
+                    inky_y = 388
+                    inky_direction = 2
+                    pinky_x = 440
+                    pinky_y = 438
+                    pinky_direction = 2
+                    clyde_x = 440
+                    clyde_y = 438
+                    clyde_direction = 2
+                    dead_ghost = [False, False, False, False]
+                    blinky_dead = False
+                    inky_dead = False
+                    pinky_dead = False
+                    clyde_dead = False
+            if powerup and SDL_HasIntersection(player_rect, pinky.rect) and dead_ghost[2] and not pinky.dead:
+                if lives > 0:
+                    powerup = False
+                    power_count = 0
+                    lives -= 1
+                    start_count = 0
+                    player_x = 450
+                    player_y = 663
+                    direction = 0
+                    direction_command = 0
+                    blinky_x = 56
+                    blinky_y = 58
+                    blinky_direction = 0
+                    inky_x = 440
+                    inky_y = 388
+                    inky_direction = 2
+                    pinky_x = 440
+                    pinky_y = 438
+                    pinky_direction = 2
+                    clyde_x = 440
+                    clyde_y = 438
+                    clyde_direction = 2
+                    dead_ghost = [False, False, False, False]
+                    blinky_dead = False
+                    inky_dead = False
+                    pinky_dead = False
+                    clyde_dead = False
+            if powerup and SDL_HasIntersection(player_rect, clyde.rect) and dead_ghost[3] and not clyde.dead:
+                if lives > 0:
+                    powerup = False
+                    power_count = 0
+                    lives -= 1
+                    start_count = 0
+                    player_x = 450
+                    player_y = 663
+                    direction = 0
+                    direction_command = 0
+                    blinky_x = 56
+                    blinky_y = 58
+                    blinky_direction = 0
+                    inky_x = 440
+                    inky_y = 388
+                    inky_direction = 2
+                    pinky_x = 440
+                    pinky_y = 438
+                    pinky_direction = 2
+                    clyde_x = 440
+                    clyde_y = 438
+                    clyde_direction = 2
+                    dead_ghost = [False, False, False, False]
+                    blinky_dead = False
+                    inky_dead = False
+                    pinky_dead = False
+                    clyde_dead = False
+            if powerup and SDL_HasIntersection(player_rect, blinky.rect) and not blinky.dead and not dead_ghost[0]:
+                blinky_dead = True
+                dead_ghost[0] = True
+            if powerup and SDL_HasIntersection(player_rect, inky.rect) and not inky.dead and not dead_ghost[1]:
+                inky_dead = True
+                dead_ghost[1] = True
+            if powerup and SDL_HasIntersection(player_rect, pinky.rect) and not pinky.dead and not dead_ghost[2]:
+                pinky_dead = True
+                dead_ghost[2] = True
+            if powerup and SDL_HasIntersection(player_rect, clyde.rect) and not clyde.dead and not dead_ghost[3]:
+                clyde_dead = True
+                dead_ghost[3] = True
+        
+            if blinky.in_box and blinky_dead:
+                blinky_dead = False
+            if inky.in_box and inky_dead:
+                inky_dead = False
+            if pinky.in_box and pinky_dead:
+                pinky_dead = False
+            if clyde.in_box and clyde_dead:
+                clyde_dead = False
 
         events = get_events()
             # обработка событий
@@ -197,6 +387,7 @@ def main():
             player_x = -47
         elif player_x < -50:
             player_x = 897
+        
                    
 
          
