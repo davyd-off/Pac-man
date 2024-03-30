@@ -1,5 +1,6 @@
 from sdl2 import *
 from sdl2.ext import *
+import sdl2.sdlmixer as sdlmixer
 
 player_images = []
 for i in range(1, 5):
@@ -88,7 +89,7 @@ def move(play_x, play_y, direction, turns_allowed, player_speed):
         play_y += player_speed
     return play_x, play_y
 
-def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, power, power_cnt, dead_ghosts):
+def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, power, power_cnt, dead_ghosts, eat_sound):
     """"
     Пожирание точек и призраков.
     """
@@ -98,22 +99,29 @@ def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, powe
         if level[center_y//num1][center_x//num2] == 1:
             level[center_y//num1][center_x//num2] = 0
             score += 10
+            sdlmixer.Mix_PlayChannel(2, eat_sound, 0)
         if level[center_y//num1][center_x//num2] == 2:
             level[center_y//num1][center_x//num2] = 0
             score += 50
+            sdlmixer.Mix_PlayChannel(2, eat_sound, 0)
             power = True
             power_cnt = 0
             dead_ghosts = [False, False, False, False]
     return score, power, power_cnt, dead_ghosts
 
-def draw_counter(renderer, scor, power, live):
+def draw_counter(renderer, scor, power, live, game_over, game_win):
     """
-    Отрисовка счетчика.
+    Отрисовка счетчика, надписи проигрыша/выигрыша.
     """
     text_color = Color(255, 255, 255)
-    font = FontTTF("./Source/Font/better-vcr-5.4.ttf", "15px", text_color)
+    text_over_color = Color(255, 0, 0)
+    text_win_color = Color(244, 164, 96)
 
-    txt = f'Score: {scor}'
+    font = FontTTF("./Source/Font/better-vcr-5.4.ttf", "15px", text_color)
+    font_over = FontTTF("./Source/Font/better-vcr-5.4.ttf", "50px", text_over_color)
+    font_win = FontTTF("./Source/Font/better-vcr-5.4.ttf", "50px", text_win_color)
+
+    txt = f'Очки: {scor}'
     txt_rendered = font.render_text(txt)
     tx_text = Texture(renderer, txt_rendered)
     renderer.copy(tx_text, dstrect=(10, 920))
@@ -123,6 +131,18 @@ def draw_counter(renderer, scor, power, live):
     tx_live = Texture(renderer, player_images[4])
     for i in range(live):
         renderer.copy(tx_live, dstrect=(650 + i * 40, 915))
+    if game_over:
+        txt_over = f'Вы проиграли :('
+        txt_over_rendered = font_over.render_text(txt_over)
+        tx_text_over = Texture(renderer, txt_over_rendered)
+        renderer.copy(tx_text_over, dstrect=(200, 425))
+    if game_win:
+        txt_win = f'Вы выиграли!'
+        txt_win_rendered = font_win.render_text(txt_win)
+        tx_text_win = Texture(renderer, txt_win_rendered)
+        renderer.copy(tx_text_win, dstrect=(200, 425))
+
+
 
 def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y, player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde):
     """

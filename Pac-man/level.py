@@ -1,8 +1,9 @@
 from sdl2 import *
 from sdl2.ext import *
+import copy
 from board_1 import boards
 
-level = boards
+level = copy.deepcopy(boards)
 
 def draw_board(renderer, WIDTH, HEIGHT, flick):
     """

@@ -1,28 +1,24 @@
 import sys
+import copy
 from sdl2 import *
 from sdl2.ext import *
 import sdl2.sdlmixer as sdlmixer
-import sdl2.sdlgfx as sdlgfx
 from button import ImageButton
 import player
 import level as lvl
+from board_1 import boards
 from ghost import Ghost
 
 # Создание аудиоканала
 sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, 2, 1024)
 
-circle_color = 0xFFFFFFFF	
-
-# Создание кадров в секунду (провально)
-fps = 60
-frameDelay = 1000 // fps
-frameStart = None
-frameTime = None
-
 WIDTH = 900
 HEIGHT = 950
 
-music_theme = sdlmixer.Mix_LoadMUS(b"Source/Sound/start.mp3")
+music_theme = sdlmixer.Mix_LoadWAV(b"Source/Sound/start.wav")
+eat_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat dot.wav")
+eat_ghost = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat ghost.wav")
+eye_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/ghost go home.wav")
 
 def main():
     init()
@@ -35,7 +31,7 @@ def main():
         render_flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
     else:
         print(0)
-        render_flags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
+        render_flags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC)
     renderer = Renderer(window, backend=-1, flags=render_flags)
     set_texture_scale_quality(method="best")
 
@@ -85,35 +81,19 @@ def main():
     inky_box = False
     pinky_box = False
     clyde_box = False
-    ghost_speed = 2
+    ghost_speeds = [2, 2, 2, 2]
     ###############################################
-
-    # Переменные для проверки столкновений
-    cX_b = 0
-    cY_b = 0
-    cX_i = 0
-    cY_i = 0
-    cX_p = 0
-    cY_p = 0
-    cX_c = 0
-    cY_c = 0
-    dist_b = 0
-    dist_i = 0
-    dist_p = 0
-    dist_c = 0
-    radius = 0
-    #
 
     # Экземпляры класса кнопок (button)
     work_button = ImageButton(window, renderer, WIDTH, HEIGHT)
 
     main_menu = True
-    game_pause = True
+    game_over = False
+    game_win = False
     sound_check = True
+
     running = True
     while running:
-        frameStart = SDL_GetTicks()
-
         if main_menu:
             work_button.render_button()
         else:
@@ -130,44 +110,84 @@ def main():
                 power_count = 0
                 powerup = False
                 dead_ghost = [False, False, False, False]
-            if start_count < 56:
+            if start_count < 56 and not game_over and not game_win:
                 moving = False
                 start_count += 1
             else:
                 moving = True
 
             lvl.draw_board(renderer, WIDTH, HEIGHT, flicker)
-            player.draw_player(renderer, count, direction, player_x, player_y)
-
-            blinky = Ghost(WIDTH, HEIGHT, blinky_x, blinky_y, targets[0], ghost_speed, blinky_tx, blinky_direction,
-                           blinky_dead, blinky_box, 0, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            inky = Ghost(WIDTH, HEIGHT, inky_x, inky_y, targets[1], ghost_speed, inky_tx, inky_direction,
-                         inky_dead, inky_box, 1, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            pinky = Ghost(WIDTH, HEIGHT, pinky_x, pinky_y, targets[2], ghost_speed, pinky_tx, pinky_direction,
-                          pinky_dead, pinky_box, 2, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
-            clyde = Ghost(WIDTH, HEIGHT, clyde_x, clyde_y, targets[3], ghost_speed, clyde_tx, clyde_direction,
-                          clyde_dead, clyde_box, 3, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
-
-            player.draw_counter(renderer, score, powerup, lives)
-            targets = player.get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
-                                         player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde)
             center_x = player_x + 23
             center_y = player_y + 24
-            turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, lvl.level)
+
+            if powerup:
+                ghost_speeds = [1, 1, 1, 1]
+            else:
+                ghost_speeds = [2, 2, 2, 2]
+            if dead_ghost[0]:
+                ghost_speeds[0] = 2
+            if dead_ghost[1]:
+                ghost_speeds[1] = 2
+            if dead_ghost[2]:
+                ghost_speeds[2] = 2
+            if dead_ghost[3]:
+                ghost_speeds[3] = 2
+            if blinky_dead:
+                ghost_speeds[0] = 4
+                sdlmixer.Mix_PlayChannel(4, eye_sound, 0)
+            if inky_dead:
+                ghost_speeds[1] = 4
+                sdlmixer.Mix_PlayChannel(4, eye_sound, 0)
+            if pinky_dead:
+                ghost_speeds[2] = 4
+                sdlmixer.Mix_PlayChannel(4, eye_sound, 0)
+            if clyde_dead:
+                ghost_speeds[3] = 4
+                sdlmixer.Mix_PlayChannel(4, eye_sound, 0)
+
+            game_win = True
+            for i in range(len(lvl.level)):
+                if 1 in lvl.level[i] or 2 in lvl.level[i]:
+                    game_win = False
 
             # хитбокс пакмана
-            player_rect = SDL_Rect(center_x - 18, center_y - 18, 36, 36)
+            player_rect = SDL_Rect(center_x , center_y, 25, 25)
+            player.draw_player(renderer, count, direction, player_x, player_y)
+
+            blinky = Ghost(WIDTH, HEIGHT, blinky_x, blinky_y, targets[0], ghost_speeds[0], blinky_tx, blinky_direction,
+                           blinky_dead, blinky_box, 0, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            inky = Ghost(WIDTH, HEIGHT, inky_x, inky_y, targets[1], ghost_speeds[1], inky_tx, inky_direction,
+                         inky_dead, inky_box, 1, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            pinky = Ghost(WIDTH, HEIGHT, pinky_x, pinky_y, targets[2], ghost_speeds[2], pinky_tx, pinky_direction,
+                          pinky_dead, pinky_box, 2, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+            clyde = Ghost(WIDTH, HEIGHT, clyde_x, clyde_y, targets[3], ghost_speeds[3], clyde_tx, clyde_direction,
+                          clyde_dead, clyde_box, 3, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+
+            player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
+
+            targets = player.get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
+                                         player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde)
+            
+            turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, lvl.level)
             
             if moving:
                 player_x, player_y = player.move(player_x, player_y, direction, turns_allowed, player_speed)
-
-                blinky_x, blinky_y, blinky_direction = blinky.move_clyde()
-                pinky_x, pinky_y, pinky_direction = pinky.move_clyde()
-                inky_x, inky_y, inky_direction = inky.move_clyde()
+                if not blinky_dead and not blinky.in_box:
+                    blinky_x, blinky_y, blinky_direction = blinky.move_blinky()
+                else:
+                    blinky_x, blinky_y, blinky_direction = blinky.move_clyde()
+                if not pinky_dead and not pinky.in_box:
+                    pinky_x, pinky_y, pinky_direction = pinky.move_pinky()
+                else:
+                    pinky_x, pinky_y, pinky_direction = pinky.move_clyde()
+                if not inky_dead and not inky.in_box:
+                    inky_x, inky_y, inky_direction = inky.move_inky()
+                else:
+                    inky_x, inky_y, inky_direction = inky.move_clyde()
                 clyde_x, clyde_y, clyde_direction = clyde.move_clyde()
 
             score, powerup, power_count, dead_ghost = player.check_target(lvl.level, WIDTH, HEIGHT, score, player_x, center_x, center_y,
-                                                                          powerup, power_count, dead_ghost)
+                                                                          powerup, power_count, dead_ghost, eat_sound)
 
             if not powerup:
                 if SDL_HasIntersection(player_rect, blinky.rect) and not blinky.dead or SDL_HasIntersection(player_rect, inky.rect) and not inky.dead or \
@@ -198,6 +218,10 @@ def main():
                         inky_dead = False
                         pinky_dead = False
                         clyde_dead = False
+                    else:
+                        game_over = True
+                        moving = False
+                        start_count = 0
             if powerup and SDL_HasIntersection(player_rect, blinky.rect) and dead_ghost[0] and not blinky.dead:
                 if lives > 0:
                     powerup = False
@@ -225,6 +249,10 @@ def main():
                     inky_dead = False
                     pinky_dead = False
                     clyde_dead = False
+                else:
+                    game_over = True
+                    moving = False
+                    start_count = 0
             if powerup and SDL_HasIntersection(player_rect, inky.rect) and dead_ghost[1] and not inky.dead:
                 if lives > 0:
                     powerup = False
@@ -252,6 +280,10 @@ def main():
                     inky_dead = False
                     pinky_dead = False
                     clyde_dead = False
+                else:
+                    game_over = True
+                    moving = False
+                    start_count = 0
             if powerup and SDL_HasIntersection(player_rect, pinky.rect) and dead_ghost[2] and not pinky.dead:
                 if lives > 0:
                     powerup = False
@@ -279,6 +311,10 @@ def main():
                     inky_dead = False
                     pinky_dead = False
                     clyde_dead = False
+                else:
+                    game_over = True
+                    moving = False
+                    start_count = 0 
             if powerup and SDL_HasIntersection(player_rect, clyde.rect) and dead_ghost[3] and not clyde.dead:
                 if lives > 0:
                     powerup = False
@@ -306,18 +342,30 @@ def main():
                     inky_dead = False
                     pinky_dead = False
                     clyde_dead = False
+                else:
+                    game_over = True
+                    moving = False
+                    start_count = 0
             if powerup and SDL_HasIntersection(player_rect, blinky.rect) and not blinky.dead and not dead_ghost[0]:
                 blinky_dead = True
                 dead_ghost[0] = True
+                score += (2 ** dead_ghost.count(True)) * 100
+                sdlmixer.Mix_PlayChannel(3, eat_ghost, 0)
             if powerup and SDL_HasIntersection(player_rect, inky.rect) and not inky.dead and not dead_ghost[1]:
                 inky_dead = True
                 dead_ghost[1] = True
+                score += (2 ** dead_ghost.count(True)) * 100
+                sdlmixer.Mix_PlayChannel(3, eat_ghost, 0)
             if powerup and SDL_HasIntersection(player_rect, pinky.rect) and not pinky.dead and not dead_ghost[2]:
                 pinky_dead = True
                 dead_ghost[2] = True
+                score += (2 ** dead_ghost.count(True)) * 100
+                sdlmixer.Mix_PlayChannel(3, eat_ghost, 0)
             if powerup and SDL_HasIntersection(player_rect, clyde.rect) and not clyde.dead and not dead_ghost[3]:
                 clyde_dead = True
                 dead_ghost[3] = True
+                score += (2 ** dead_ghost.count(True)) * 100
+                sdlmixer.Mix_PlayChannel(3, eat_ghost, 0)
         
             if blinky.in_box and blinky_dead:
                 blinky_dead = False
@@ -353,8 +401,9 @@ def main():
  
             if main_menu == False:
                 if sound_check:
-                    sdlmixer.Mix_PlayMusic(music_theme, 0)
+                    sdlmixer.Mix_PlayChannel(1, music_theme, 0)
                     sound_check = False
+                
 
             if event.type == SDL_KEYDOWN:   # нажатие на стрелочки
                 if event.key.keysym.sym == SDLK_RIGHT:
@@ -365,6 +414,37 @@ def main():
                     direction_command = 2
                 if event.key.keysym.sym == SDLK_DOWN:
                     direction_command = 3
+                if event.key.keysym.sym == SDLK_SPACE and (game_over or game_win):
+                    powerup = False
+                    power_count = 0
+                    lives -= 1
+                    start_count = 0
+                    player_x = 450
+                    player_y = 663
+                    direction = 0
+                    direction_command = 0
+                    blinky_x = 56
+                    blinky_y = 58
+                    blinky_direction = 0
+                    inky_x = 440
+                    inky_y = 388
+                    inky_direction = 2
+                    pinky_x = 440
+                    pinky_y = 438
+                    pinky_direction = 2
+                    clyde_x = 440
+                    clyde_y = 438
+                    clyde_direction = 2
+                    dead_ghost = [False, False, False, False]
+                    blinky_dead = False
+                    inky_dead = False
+                    clyde_dead = False
+                    pinky_dead = False
+                    score = 0
+                    lives = 3
+                    lvl.level = copy.deepcopy(boards)
+                    game_over = False
+                    game_win = False
             if event.type == SDL_KEYUP:
                 if event.key.keysym.sym == SDLK_RIGHT and direction_command == 0:
                     direction_command = direction
@@ -388,17 +468,9 @@ def main():
         elif player_x < -50:
             player_x = 897
         
-                   
-
          
         renderer.present()
         renderer.clear()
-       # SDL_Delay(16)
-        
-        frameTime = SDL_GetTicks() - frameStart
-        #print(frameTime)  # вывод в терминал количества каров в окне
-        #if frameDelay > frameTime:
-        #    SDL_Delay(frameDelay - frameTime)
     renderer.destroy()
     window.close()
     quit()
