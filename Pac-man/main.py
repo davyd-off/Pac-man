@@ -91,11 +91,15 @@ def main():
     game_over = False
     game_win = False
     sound_check = True
+    help_screen = True
 
     running = True
     while running:
         if main_menu:
             work_button.render_button()
+            if help_screen == False:
+                work_button.render_clean()
+                work_button.show_help()
         else:
             if count < 19:
                 count += 1
@@ -390,10 +394,17 @@ def main():
                     main_menu = False
                     work_button.play_sound()
                     work_button.render_clean()
-                    print("Start Game button pressed")
                 if WIDTH // 4 <= x <= 762 and (HEIGHT // 2) - 48 <= y <= (HEIGHT // 2):
+                    help_screen = False
                     work_button.play_sound()
-                    print("Help button pressed")
+                if WIDTH // 4 <= x <= 417 and HEIGHT - 96 <= y <= HEIGHT - 48:
+                    work_button.play_sound()
+                    work_button.render_clean()
+                    main_menu = True
+                    game_over = False
+                    game_win = False
+                    running = True
+                    help_screen = True
                 if WIDTH // 4 <= x <= 438 and (HEIGHT // 2) + 48 <= y <= (HEIGHT // 2) + 96:
                     work_button.play_sound()
                     running = False
