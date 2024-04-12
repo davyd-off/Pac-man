@@ -1,12 +1,10 @@
 import sys
-import copy
 from sdl2 import *
 from sdl2.ext import *
 import sdl2.sdlmixer as sdlmixer
 from button import ImageButton
 import player
 import level as lvl
-from board_1 import boards
 from ghost import Ghost
 
 # Создание аудиоканала
@@ -58,6 +56,9 @@ def main():
     inky_tx = Texture(renderer, load_image(b"Source/Images/inky.png"))
     pinky_tx = Texture(renderer, load_image(b"Source/Images/pinky.png"))
     clyde_tx = Texture(renderer, load_image(b"Source/Images/clyde.png"))
+    ghost1_tx = Texture(renderer, load_image(b"Source/Images/ghost_1.png"))
+    ghost2_tx = Texture(renderer, load_image(b"Source/Images/ghost_2.png"))
+    ghost3_tx = Texture(renderer, load_image(b"Source/Images/ghost_3.png"))
     death_ghost_tx = Texture(renderer, load_image(b"Source/Images/death_ghost.png"))
     eye_tx = Texture(renderer, load_image(b"Source/Images/eye.png"))
     blinky_x = 56
@@ -91,16 +92,29 @@ def main():
     game_over = False
     game_win = False
     sound_check = True
-    help_screen = True
+    help_screen = False
+    select_screen = False
+    select_level = [False, False, False]
+    select_ghost = False
+    flag = True
 
     running = True
     while running:
         if main_menu:
-            work_button.render_button()
-            if help_screen == False:
+            work_button.show_menu()
+            if help_screen:
                 work_button.render_clean()
                 work_button.show_help()
-        else:
+            if select_screen:
+                work_button.render_clean()
+                work_button.show_select()
+        if select_ghost and (select_level[0] or select_level[1] or select_level[2]):
+            work_button.render_clean()
+            main_menu = False
+            if flag:
+                flag = False
+                map = lvl.selected_level(select_level)
+
             if count < 19:
                 count += 1
                 if count > 3:
@@ -120,7 +134,7 @@ def main():
             else:
                 moving = True
 
-            lvl.draw_board(renderer, WIDTH, HEIGHT, flicker)
+            lvl.draw_board(renderer, WIDTH, HEIGHT, flicker, map)
             center_x = player_x + 23
             center_y = player_y + 24
 
@@ -150,8 +164,8 @@ def main():
                 sdlmixer.Mix_PlayChannel(4, eye_sound, 0)
 
             game_win = True
-            for i in range(len(lvl.level)):
-                if 1 in lvl.level[i] or 2 in lvl.level[i]:
+            for i in range(len(map)):
+                if 1 in map[i] or 2 in map[i]:
                     game_win = False
 
             # хитбокс пакмана
@@ -159,20 +173,20 @@ def main():
             player.draw_player(renderer, count, direction, player_x, player_y)
 
             blinky = Ghost(WIDTH, HEIGHT, blinky_x, blinky_y, targets[0], ghost_speeds[0], blinky_tx, blinky_direction,
-                           blinky_dead, blinky_box, 0, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+                           blinky_dead, blinky_box, 0, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
             inky = Ghost(WIDTH, HEIGHT, inky_x, inky_y, targets[1], ghost_speeds[1], inky_tx, inky_direction,
-                         inky_dead, inky_box, 1, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+                         inky_dead, inky_box, 1, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
             pinky = Ghost(WIDTH, HEIGHT, pinky_x, pinky_y, targets[2], ghost_speeds[2], pinky_tx, pinky_direction,
-                          pinky_dead, pinky_box, 2, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+                          pinky_dead, pinky_box, 2, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
             clyde = Ghost(WIDTH, HEIGHT, clyde_x, clyde_y, targets[3], ghost_speeds[3], clyde_tx, clyde_direction,
-                          clyde_dead, clyde_box, 3, renderer, lvl.level, powerup, dead_ghost, death_ghost_tx, eye_tx)
+                          clyde_dead, clyde_box, 3, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
 
             player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
 
             targets = player.get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
                                          player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde)
             
-            turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, lvl.level)
+            turns_allowed = player.check_position(center_x, center_y, direction, WIDTH, HEIGHT, map)
             
             if moving:
                 player_x, player_y = player.move(player_x, player_y, direction, turns_allowed, player_speed)
@@ -190,7 +204,7 @@ def main():
                     inky_x, inky_y, inky_direction = inky.move_clyde()
                 clyde_x, clyde_y, clyde_direction = clyde.move_clyde()
 
-            score, powerup, power_count, dead_ghost = player.check_target(lvl.level, WIDTH, HEIGHT, score, player_x, center_x, center_y,
+            score, powerup, power_count, dead_ghost = player.check_target(map, WIDTH, HEIGHT, score, player_x, center_x, center_y,
                                                                           powerup, power_count, dead_ghost, eat_sound)
 
             if not powerup:
@@ -390,27 +404,56 @@ def main():
             
             if event.type == SDL_MOUSEBUTTONDOWN:   # нажатие кнопок меню
                 x, y = event.button.x, event.button.y
-                if WIDTH // 4 <= x <= 618 and (HEIGHT // 4) + 96 <= y <= (HEIGHT // 4) + 144:
-                    main_menu = False
+                if WIDTH // 4 <= x <= 618 and (HEIGHT // 4) + 96 <= y <= (HEIGHT // 4) + 144: # Начать игру
+                    select_screen = True
                     work_button.play_sound()
                     work_button.render_clean()
-                if WIDTH // 4 <= x <= 762 and (HEIGHT // 2) - 48 <= y <= (HEIGHT // 2):
-                    help_screen = False
+                if WIDTH // 4 <= x <= 762 and (HEIGHT // 2) - 48 <= y <= (HEIGHT // 2): # Помощь
+                    help_screen = True
                     work_button.play_sound()
-                if WIDTH // 4 <= x <= 417 and HEIGHT - 96 <= y <= HEIGHT - 48:
+                if 350 <= x <= 542 and HEIGHT - 96 <= y <= HEIGHT - 48: # Назад
                     work_button.play_sound()
                     work_button.render_clean()
                     main_menu = True
                     game_over = False
                     game_win = False
                     running = True
-                    help_screen = True
-                if WIDTH // 4 <= x <= 438 and (HEIGHT // 2) + 48 <= y <= (HEIGHT // 2) + 96:
+                    help_screen = False
+                    select_screen = False
+                
+                if 60 <= x <= 160 and 272 <= y <= 392: # Кнопки выбора кол-ва призраков
+                    select_ghost = True
+                    print('OK')
+                    work_button.play_sound()
+                if 60 <= x <= 160 and 440 <= y <= 560:
+                    print('OK')
+                    work_button.play_sound()
+                if 60 <= x <= 160 and 607 <= y <= 727:
+                    print('OK')
+                    work_button.play_sound()
+                if 60 <= x <= 160 and 773 <= y <= 893:
+                    print('OK')
+                    work_button.play_sound()
+
+                if 800 <= x <= 840 and 272 <= y <= 320: # Кнопки выбора карты
+                    select_level[0] = True
+                    print('OK')
+                    work_button.play_sound()
+                if 800 <= x <= 840 and 440 <= y <= 480:
+                    select_level[1] = True
+                    print('OK')
+                    work_button.play_sound()
+                if 800 <= x <= 840 and 607 <= y <= 647:
+                    select_level[2] = True
+                    print('OK')
+                    work_button.play_sound()               
+
+                if WIDTH // 4 <= x <= 438 and (HEIGHT // 2) + 48 <= y <= (HEIGHT // 2) + 96: # Выход
                     work_button.play_sound()
                     running = False
                     break
  
-            if main_menu == False:
+            if main_menu == False: # Музыка в начале
                 if sound_check:
                     sdlmixer.Mix_PlayChannel(1, music_theme, 0)
                     sound_check = False
@@ -453,7 +496,7 @@ def main():
                     pinky_dead = False
                     score = 0
                     lives = 3
-                    lvl.level = copy.deepcopy(boards)
+                    map = lvl.selected_level(select_level)
                     game_over = False
                     game_win = False
             if event.type == SDL_KEYUP:
@@ -474,6 +517,7 @@ def main():
         if direction_command == 3 and turns_allowed[3]:
             direction = 3
 
+        # появление пакмана с другого края карты
         if player_x > 900:
             player_x = -47
         elif player_x < -50:

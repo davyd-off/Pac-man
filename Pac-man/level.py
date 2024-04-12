@@ -1,11 +1,24 @@
 from sdl2 import *
 from sdl2.ext import *
+from board_1 import board1
+from board_2 import board2
+from board_3 import board3
 import copy
-from board_1 import boards
 
-level = copy.deepcopy(boards)
 
-def draw_board(renderer, WIDTH, HEIGHT, flick):
+def selected_level(select_level):
+    """
+    Загрузка карты.
+    """
+    if select_level[0]:
+        map = copy.deepcopy(board1)
+    elif select_level[1]:
+        map = copy.deepcopy(board2)
+    else:
+        map = copy.deepcopy(board3)
+    return map
+
+def draw_board(renderer, WIDTH, HEIGHT, flick, level):
     """
     Рисование карты.
     """

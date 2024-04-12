@@ -142,8 +142,6 @@ def draw_counter(renderer, scor, power, live, game_over, game_win):
         tx_text_win = Texture(renderer, txt_win_rendered)
         renderer.copy(tx_text_win, dstrect=(200, 425))
 
-
-
 def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y, player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde):
     """
     Преследование пакмана призраками.
