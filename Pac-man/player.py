@@ -106,7 +106,7 @@ def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, powe
             sdlmixer.Mix_PlayChannel(2, eat_sound, 0)
             power = True
             power_cnt = 0
-            dead_ghosts = [False, False, False, False]
+            dead_ghosts = [False, False, False, False, False, False, False]
     return score, power, power_cnt, dead_ghosts
 
 def draw_counter(renderer, scor, power, live, game_over, game_win):
@@ -142,9 +142,10 @@ def draw_counter(renderer, scor, power, live, game_over, game_win):
         tx_text_win = Texture(renderer, txt_win_rendered)
         renderer.copy(tx_text_win, dstrect=(200, 425))
 
-def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y, player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde):
+def get_targets_4(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y,
+                  player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde):
     """
-    Преследование пакмана призраками.
+    Изменение координат призраков в зависимости от: преследования ими пакмана, убегания от пакмана, перерождения.
     """
     if player_x < 450:
         runaway_x = 900
@@ -222,3 +223,348 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y, 
         else:
             clyd_target = return_target
     return [blink_target, ink_target, pink_target, clyd_target]
+
+def get_targets_5(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y,
+                ghst1_x, ghst1_y, player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde, ghost1):
+    """
+    Изменение координат призраков в зависимости от: преследования ими пакмана, убегания от пакмана, перерождения.
+    """
+    if player_x < 450:
+        runaway_x = 900
+    else:
+        runaway_x = 0
+    if player_y < 450:
+        runaway_y = 900
+    else:
+        runaway_y = 0
+    return_target = (380, 400)
+    if powerup:
+        if not blinky.dead and not dead_ghost[0]:
+            blink_target = (runaway_x, runaway_y)
+        elif not blinky.dead and dead_ghost[0]:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead and not dead_ghost[1]:
+            ink_target = (runaway_x, player_y)
+        elif not inky.dead and dead_ghost[1]:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            pink_target = (player_x, runaway_y)
+        elif not pinky.dead and dead_ghost[2]:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead and not dead_ghost[3]:
+            clyd_target = (450, 450)
+        elif not clyde.dead and dead_ghost[3]:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead and not dead_ghost[4]:
+            ghst1_target = (450, 450)
+        elif not ghost1.dead and dead_ghost[4]:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+    else:
+        if not blinky.dead:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+    return [blink_target, ink_target, pink_target, clyd_target, ghst1_target]
+
+def get_targets_6(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y,
+                ghst1_x, ghst1_y, ghst2_x, ghst2_y,
+                  player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde, ghost1, ghost2):
+    """
+    Изменение координат призраков в зависимости от: преследования ими пакмана, убегания от пакмана, перерождения.
+    """
+    if player_x < 450:
+        runaway_x = 900
+    else:
+        runaway_x = 0
+    if player_y < 450:
+        runaway_y = 900
+    else:
+        runaway_y = 0
+    return_target = (380, 400)
+    if powerup:
+        if not blinky.dead and not dead_ghost[0]:
+            blink_target = (runaway_x, runaway_y)
+        elif not blinky.dead and dead_ghost[0]:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead and not dead_ghost[1]:
+            ink_target = (runaway_x, player_y)
+        elif not inky.dead and dead_ghost[1]:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            pink_target = (player_x, runaway_y)
+        elif not pinky.dead and dead_ghost[2]:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead and not dead_ghost[3]:
+            clyd_target = (450, 450)
+        elif not clyde.dead and dead_ghost[3]:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead and not dead_ghost[4]:
+            ghst1_target = (450, 450)
+        elif not ghost1.dead and dead_ghost[4]:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+        if not ghost2.dead and not dead_ghost[5]:
+            ghst2_target = (450, 450)
+        elif not ghost2.dead and dead_ghost[5]:
+            if 340 < ghst2_x < 560 and 340 < ghst2_y < 500:
+                ghst2_target = (400, 100)
+            else:
+                ghst2_target = (player_x, player_y)
+        else:
+            ghst2_target = return_target        
+    else:
+        if not blinky.dead:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+        if not ghost2.dead:
+            if 340 < ghst2_x < 560 and 340 < ghst2_y < 500:
+                ghst2_target = (400, 100)
+            else:
+                ghst2_target = (player_x, player_y)
+        else:
+            ghst2_target = return_target
+    return [blink_target, ink_target, pink_target, clyd_target, ghst1_target, ghst2_target]
+
+def get_targets_7(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y,
+                ghst1_x, ghst1_y, ghst2_x, ghst2_y, ghst3_x, ghst3_y,
+                  player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde, ghost1, ghost2, ghost3):
+    """
+    Изменение координат призраков в зависимости от: преследования ими пакмана, убегания от пакмана, перерождения.
+    """
+    if player_x < 450:
+        runaway_x = 900
+    else:
+        runaway_x = 0
+    if player_y < 450:
+        runaway_y = 900
+    else:
+        runaway_y = 0
+    return_target = (380, 400)
+    if powerup:
+        if not blinky.dead and not dead_ghost[0]:
+            blink_target = (runaway_x, runaway_y)
+        elif not blinky.dead and dead_ghost[0]:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead and not dead_ghost[1]:
+            ink_target = (runaway_x, player_y)
+        elif not inky.dead and dead_ghost[1]:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            pink_target = (player_x, runaway_y)
+        elif not pinky.dead and dead_ghost[2]:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead and not dead_ghost[3]:
+            clyd_target = (450, 450)
+        elif not clyde.dead and dead_ghost[3]:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead and not dead_ghost[4]:
+            ghst1_target = (450, 450)
+        elif not ghost1.dead and dead_ghost[4]:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+        if not ghost2.dead and not dead_ghost[5]:
+            ghst2_target = (450, 450)
+        elif not ghost2.dead and dead_ghost[5]:
+            if 340 < ghst2_x < 560 and 340 < ghst2_y < 500:
+                ghst2_target = (400, 100)
+            else:
+                ghst2_target = (player_x, player_y)
+        else:
+            ghst2_target = return_target
+        if not ghost3.dead and not dead_ghost[6]:
+            ghst3_target = (450, 450)
+        elif not ghost3.dead and dead_ghost[6]:
+            if 340 < ghst3_x < 560 and 340 < ghst3_y < 500:
+                ghst3_target = (400, 100)
+            else:
+                ghst3_target = (player_x, player_y)
+        else:
+            ghst3_target = return_target
+        
+    else:
+        if not blinky.dead:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+                blink_target = (400, 100)
+            else:
+                blink_target = (player_x, player_y)
+        else:
+            blink_target = return_target
+        if not inky.dead:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+                ink_target = (400, 100)
+            else:
+                ink_target = (player_x, player_y)
+        else:
+            ink_target = return_target
+        if not pinky.dead:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+                pink_target = (400, 100)
+            else:
+                pink_target = (player_x, player_y)
+        else:
+            pink_target = return_target
+        if not clyde.dead:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+                clyd_target = (400, 100)
+            else:
+                clyd_target = (player_x, player_y)
+        else:
+            clyd_target = return_target
+        if not ghost1.dead:
+            if 340 < ghst1_x < 560 and 340 < ghst1_y < 500:
+                ghst1_target = (400, 100)
+            else:
+                ghst1_target = (player_x, player_y)
+        else:
+            ghst1_target = return_target
+        if not ghost2.dead:
+            if 340 < ghst2_x < 560 and 340 < ghst2_y < 500:
+                ghst2_target = (400, 100)
+            else:
+                ghst2_target = (player_x, player_y)
+        else:
+            ghst2_target = return_target
+        if not ghost3.dead:
+            if 340 < ghst3_x < 560 and 340 < ghst3_y < 500:
+                ghst3_target = (400, 100)
+            else:
+                ghst3_target = (player_x, player_y)
+        else:
+            ghst3_target = return_target
+    return [blink_target, ink_target, pink_target, clyd_target, ghst1_target, ghst2_target, ghst3_target]

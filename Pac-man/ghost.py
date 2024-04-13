@@ -29,7 +29,7 @@ class Ghost:
 
     def draw_ghost(self):
         """
-        Добавление текстур призраков.
+        Добавление текстур призраков и создание их хитбоксов.
         """
         if (not self.powerup and not self.dead) or (self.dead_ghost[self.id] and self.powerup and not self.dead):
             self.renderer.copy(self.img, dstrect=(self.x_pos, self.y_pos))
@@ -43,7 +43,13 @@ class Ghost:
     
     def check_collisions(self):
         """
-        Проверка призраков не столкновение со стенкой.
+        Проверка призраков на столкновение со стенкой.
+
+        Args:
+            turns/direction == 0 - вправо
+            turns/direction == 1 - влево
+            turns/direction == 2 - вверх
+            turns/direction == 3 - вниз
         """
         num1 = ((self.height-50) // 32)
         num2 = (self.width // 30)
@@ -107,7 +113,7 @@ class Ghost:
             self.turns[0] = True
             self.turns[1] = True
         
-        if 350 < self.x_pos < 550 and 370 < self.y_pos < 480:
+        if 350 < self.x_pos < 545 and 370 < self.y_pos < 480:
             self.in_box = True
         else:
             self.in_box = False
@@ -118,6 +124,12 @@ class Ghost:
         """
         Движение Блинки (красного). Он поворачивается при каждом столкновении со стенкой, в противном случае
         продолжает движение прямо.
+
+        Args:
+            turns/direction == 0 - вправо
+            turns/direction == 1 - влево
+            turns/direction == 2 - вверх
+            turns/direction == 3 - вниз
         """
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
@@ -216,16 +228,22 @@ class Ghost:
                     self.x_pos -= self.speed
             elif self.turns[3]:
                 self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
+        if self.x_pos < -50:
+            self.x_pos = 897
         elif self.x_pos > 900:
-            self.x_pos - 30
+            self.x_pos = -47
         return self.x_pos, self.y_pos, self.direction
     
     def move_inky(self):
         """
         Движение Инки (голубого). Он поворачивает в любой момент вверх и вниз, чтобы преследовать.
         Влево и вправо только при столкновении со стенкой.
+
+        Args:
+            turns/direction == 0 - вправо
+            turns/direction == 1 - влево
+            turns/direction == 2 - вверх
+            turns/direction == 3 - вниз
         """
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
@@ -340,16 +358,22 @@ class Ghost:
                     self.x_pos += self.speed
             elif self.turns[3]:
                 self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
+        if self.x_pos < -50:
+            self.x_pos = 897
         elif self.x_pos > 900:
-            self.x_pos - 30
+            self.x_pos = -47
         return self.x_pos, self.y_pos, self.direction
     
     def move_pinky(self):
         """
         Движение Пинки (розового). Он поворачивает в любой момент влево и вправо, чтобы преследовать пакмана.
         Вверх и вниз только при столкновении со стенкой.
+
+        Args:
+            turns/direction == 0 - вправо
+            turns/direction == 1 - влево
+            turns/direction == 2 - вверх
+            turns/direction == 3 - вниз
         """
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
@@ -467,15 +491,21 @@ class Ghost:
                     self.x_pos -= self.speed
                 else:
                     self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
+        if self.x_pos < -50:
+            self.x_pos = 897
         elif self.x_pos > 900:
-            self.x_pos - 30
+            self.x_pos = -47
         return self.x_pos, self.y_pos, self.direction
     
     def move_clyde(self):
         """
         Движение Клайда (оранжевого). Он разваорачивается тогда, когда это выгодно для преследования пакмана.
+
+        Args:
+            turns/direction == 0 - вправо
+            turns/direction == 1 - влево
+            turns/direction == 2 - вверх
+            turns/direction == 3 - вниз
         """
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
@@ -607,8 +637,8 @@ class Ghost:
                     self.x_pos -= self.speed
                 else:
                     self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
+        if self.x_pos < -50:
+            self.x_pos = 897
         elif self.x_pos > 900:
-            self.x_pos - 30
+            self.x_pos = -47
         return self.x_pos, self.y_pos, self.direction
