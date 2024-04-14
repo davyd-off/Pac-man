@@ -7,34 +7,49 @@ import player
 import level as lvl
 from ghost import Ghost
 
-# Создание аудиоканала
-sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, 2, 1024)
 
-WIDTH = 900
-HEIGHT = 950
-
-music_theme = sdlmixer.Mix_LoadWAV(b"Source/Sound/start.wav")
-eat_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat dot.wav")
-eat_ghost = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat ghost.wav")
-eye_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/ghost go home.wav")
 
 def main():
     init()
+
+    # Создание аудиоканала
+    sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, 2, 1024)
+    music_theme = sdlmixer.Mix_LoadWAV(b"Source/Sound/start.wav")
+    eat_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat dot.wav")
+    eat_ghost = sdlmixer.Mix_LoadWAV(b"Source/Sound/eat ghost.wav")
+    eye_sound = sdlmixer.Mix_LoadWAV(b"Source/Sound/ghost go home.wav")
+
+    WIDTH = 900
+    HEIGHT = 950
     
-    window = Window("Pac-man", (WIDTH, HEIGHT), flags=SDL_WINDOW_RESIZABLE)
+    window = Window("Pac-man", (WIDTH, HEIGHT), flags=SDL_WINDOW_SHOWN)
     window.show()
     
+    # Проверка на запуск с аппаратным или программным ускорением
     if "-hardware" in sys.argv:
         print(1)
         render_flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE)
     else:
         print(0)
         render_flags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC)
+    
+    # Создание рендера
     renderer = Renderer(window, backend=-1, flags=render_flags)
     set_texture_scale_quality(method="best")
 
+    # Объявление фабричного класса для создания спрайтов (текстур)
+    factory = SpriteFactory(TEXTURE, renderer=renderer)
+
+    # текстуры кнопок
+    tx_1 = factory.from_image(f'Source/Images/dot.png')
+    tx_2 = factory.from_image(f'Source/Images/power dot.png')
+
     flicker = False   # для моргания жирных точек
     # Переменные для работы с функциями пакмана #
+    player_images = []
+    for i in range(1, 5):
+        player_images.append(factory.from_image(f'Source/Images/pacman_{i}.png'))
+    player_images.append(factory.from_image(f'Source/Images/pacman_live.png'))
     count = 0
     direction = 0
     turns_allowed = [False, False, False, False]
@@ -52,15 +67,15 @@ def main():
     #############################################
 
     # Переменные для работы с функциями призраков #
-    blinky_tx = Texture(renderer, load_image(b"Source/Images/blinky.png"))
-    inky_tx = Texture(renderer, load_image(b"Source/Images/inky.png"))
-    pinky_tx = Texture(renderer, load_image(b"Source/Images/pinky.png"))
-    clyde_tx = Texture(renderer, load_image(b"Source/Images/clyde.png"))
-    ghost1_tx = Texture(renderer, load_image(b"Source/Images/ghost_1.png"))
-    ghost2_tx = Texture(renderer, load_image(b"Source/Images/ghost_2.png"))
-    ghost3_tx = Texture(renderer, load_image(b"Source/Images/ghost_3.png"))
-    death_ghost_tx = Texture(renderer, load_image(b"Source/Images/death_ghost.png"))
-    eye_tx = Texture(renderer, load_image(b"Source/Images/eye.png"))
+    blinky_tx = factory.from_image(f'Source/Images/blinky.png')
+    inky_tx = factory.from_image(f'Source/Images/inky.png')
+    pinky_tx = factory.from_image(f'Source/Images/pinky.png')
+    clyde_tx = factory.from_image(f'Source/Images/clyde.png')
+    ghost1_tx = factory.from_image(f'Source/Images/ghost_1.png')
+    ghost2_tx = factory.from_image(f'Source/Images/ghost_2.png')
+    ghost3_tx = factory.from_image(f'Source/Images/ghost_3.png')
+    death_ghost_tx = factory.from_image(f'Source/Images/death_ghost.png')
+    eye_tx = factory.from_image(f'Source/Images/eye.png')
     blinky_x = 56
     blinky_y = 58
     blinky_direction = 0
@@ -106,7 +121,7 @@ def main():
     ghost_speeds = [2, 2, 2, 2, 2, 2, 2]
     ###############################################
 
-    # Экземпляры класса кнопок (button)
+    # Экземпляр класса кнопок (button)
     work_button = ImageButton(window, renderer, WIDTH, HEIGHT)
 
     main_menu = True
@@ -153,12 +168,12 @@ def main():
             if start_count < 56 and not game_over and not game_win:
                 moving = False
                 start_count += 1
-            elif lives == 0 and (game_over or game_win):
+            elif game_over or game_win:
                 moving = False
             else:
                 moving = True
 
-            lvl.draw_board(renderer, WIDTH, HEIGHT, flicker, map)
+            lvl.draw_board(renderer, WIDTH, HEIGHT, flicker, map, tx_1, tx_2)
             center_x = player_x + 23
             center_y = player_y + 24
 
@@ -208,8 +223,8 @@ def main():
                     game_win = False
 
             # хитбокс пакмана
-            player_rect = SDL_Rect(center_x , center_y, 25, 25)
-            player.draw_player(renderer, count, direction, player_x, player_y)
+            player_rect = SDL_Rect(player_x + 17, player_y + 17, 18, 18)
+            player.draw_player(renderer, count, direction, player_x, player_y, player_images)
 
             # добавление призраков в зависимости от выбора игрока
             if select_ghost[0]:
@@ -223,7 +238,7 @@ def main():
                             clyde_dead, clyde_box, 3, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
                 
 
-                player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
+                player.draw_counter(renderer, score, powerup, lives, game_over, game_win, player_images, factory)
 
                 targets_4 = player.get_targets_4(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
                                          player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde)
@@ -450,7 +465,7 @@ def main():
                             ghost1_dead, ghost1_box, 4, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
                 
 
-                player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
+                player.draw_counter(renderer, score, powerup, lives, game_over, game_win, player_images, factory)
 
                 targets_5 = player.get_targets_5(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
                                                 ghost1_x, ghost1_y, player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde, ghost1)
@@ -746,7 +761,7 @@ def main():
                             ghost2_dead, ghost2_box, 5, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
                 
 
-                player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
+                player.draw_counter(renderer, score, powerup, lives, game_over, game_win, player_images, factory)
 
                 targets_6 = player.get_targets_6(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
                                                 ghost1_x, ghost1_y, ghost2_x, ghost2_y,
@@ -1119,7 +1134,7 @@ def main():
                 ghost3 = Ghost(WIDTH, HEIGHT, ghost3_x, ghost3_y, targets_7[6], ghost_speeds[6], ghost3_tx, ghost3_direction,
                             ghost3_dead, ghost3_box, 6, renderer, map, powerup, dead_ghost, death_ghost_tx, eye_tx)
 
-                player.draw_counter(renderer, score, powerup, lives, game_over, game_win)
+                player.draw_counter(renderer, score, powerup, lives, game_over, game_win, player_images, factory)
 
                 targets_7 = player.get_targets_7(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y,
                                             ghost1_x, ghost1_y, ghost2_x, ghost2_y, ghost3_x, ghost3_y,
@@ -1700,6 +1715,7 @@ def main():
          
         renderer.present()
         renderer.clear()
+        window.refresh()
     renderer.destroy()
     window.close()
     quit()

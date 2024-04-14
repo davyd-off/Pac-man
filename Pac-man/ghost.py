@@ -32,11 +32,11 @@ class Ghost:
         Добавление текстур призраков и создание их хитбоксов.
         """
         if (not self.powerup and not self.dead) or (self.dead_ghost[self.id] and self.powerup and not self.dead):
-            self.renderer.copy(self.img, dstrect=(self.x_pos, self.y_pos))
+            self.renderer.blit(self.img, dstrect=(self.x_pos, self.y_pos))
         elif self.powerup and not self.dead and not self.dead_ghost[self.id]:
-            self.renderer.copy(self.death_ghost_tx, dstrect=(self.x_pos, self.y_pos))
+            self.renderer.blit(self.death_ghost_tx, dstrect=(self.x_pos, self.y_pos))
         else:
-            self.renderer.copy(self.eye_tx, dstrect=(self.x_pos, self.y_pos))
+            self.renderer.blit(self.eye_tx, dstrect=(self.x_pos, self.y_pos))
         
         ghost_rect = SDL_Rect(self.center_x - 18, self.center_y - 18, 36, 36)
         return ghost_rect

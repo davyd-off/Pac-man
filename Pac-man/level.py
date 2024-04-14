@@ -18,7 +18,7 @@ def selected_level(select_level):
         map = copy.deepcopy(board3)
     return map
 
-def draw_board(renderer, WIDTH, HEIGHT, flick, level):
+def draw_board(renderer, WIDTH, HEIGHT, flick, level, tx_1, tx_2):
     """
     Рисование карты.
     """
@@ -30,11 +30,9 @@ def draw_board(renderer, WIDTH, HEIGHT, flick, level):
     for i in range(len(level)):
         for j in range(len(level[i])):
             if level[i][j] == 1:
-                tx_1 = Texture(renderer, load_image(b"Source/Images/dot.png"))
-                renderer.copy(tx_1, dstrect=(j * num2 + (num2 // 2), i * num1 + (num1 // 2)), angle=0, flip=0)
+                renderer.blit(tx_1, dstrect=(j * num2 + (num2 // 2), i * num1 + (num1 // 2)), angle=0, flip=0)
             if level[i][j] == 2 and not flick:
-                tx_2 = Texture(renderer, load_image(b"Source/Images/power dot.png"))
-                renderer.copy(tx_2, dstrect=(j * num2 + (num2 // 2), i * num1 + (num1 // 2)), angle=0, flip=0)                     
+                renderer.blit(tx_2, dstrect=(j * num2 + (num2 // 2), i * num1 + (num1 // 2)), angle=0, flip=0)                     
             if level[i][j] == 3:
                 renderer.draw_line(((j * num2 + (num2 // 2)), (i * num1),
                                 (j * num2 + (num2 // 2)), (i * num1 + num1)), color=color_1)

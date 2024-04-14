@@ -51,23 +51,21 @@ class ImageButton:
     
     def show_menu(self):
         for button, texture in self.buttons.items():
-            self.renderer.copy(texture, dstrect=self.button_positions[button])
+            self.renderer.blit(texture, dstrect=self.button_positions[button])
 
     def show_help(self):
-        self.background = load_image((f'Source/Images/help_screen.png'))
-        self.tx_background = Texture(self.renderer, self.background)
-        self.renderer.copy(self.tx_background, dstrect=(0, 0))
+        self.tx_background_help = self.factory.from_image(f'Source/Images/help_screen.png')
+        self.renderer.blit(self.tx_background_help, dstrect=(0, 0))
         for button, texture in self.button_back.items():
-            self.renderer.copy(texture, dstrect=self.button_pos_back[button])
+            self.renderer.blit(texture, dstrect=self.button_pos_back[button])
 
     def show_select(self):
-        self.background = load_image((f'Source/Images/select_screen.png'))
-        self.tx_background = Texture(self.renderer, self.background)
-        self.renderer.copy(self.tx_background, dstrect=(0, 0))
+        self.tx_background = self.factory.from_image(f'Source/Images/select_screen.png')
+        self.renderer.blit(self.tx_background, dstrect=(0, 0))
         for button, texture in self.button_back.items():
-            self.renderer.copy(texture, dstrect=self.button_pos_back[button])
+            self.renderer.blit(texture, dstrect=self.button_pos_back[button])
         for button, texture in self.buttons_select_level.items():
-            self.renderer.copy(texture, dstrect=self.button_pos_select_level[button])
+            self.renderer.blit(texture, dstrect=self.button_pos_select_level[button])
 
     def render_clean(self):
         self.renderer.clear(self.bg_color2)

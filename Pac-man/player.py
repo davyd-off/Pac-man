@@ -2,28 +2,32 @@ from sdl2 import *
 from sdl2.ext import *
 import sdl2.sdlmixer as sdlmixer
 
-player_images = []
-for i in range(1, 5):
-    player_images.append(load_image(f'Source/Images/pacman_{i}.png'))
-player_images.append(load_image(f'Source/Images/pacman_live.png'))
 
-def draw_player(renderer, count, direction, player_x, player_y):
+text_color = Color(255, 255, 255)
+text_over_color = Color(255, 0, 0)
+text_win_color = Color(244, 164, 96)
+
+font_manager_scor = FontManager(font_path="./Source/Font/better-vcr-5.4.ttf", size=15, color=text_color)
+font_manager_over = FontManager(font_path="./Source/Font/better-vcr-5.4.ttf", size=50, color=text_over_color)
+font_manager_win = FontManager(font_path="./Source/Font/better-vcr-5.4.ttf", size=50, color=text_win_color)
+
+def draw_player(renderer, count, direction, player_x, player_y, player_images):
     """
     Рисовалка пакмана.
     0 - право, 1 - лево, 2 - вверх, 3 - вниз
     """
     if direction == 0:
-        tx_1 = Texture(renderer, player_images[count // 5])
-        renderer.copy(tx_1, dstrect=(player_x, player_y))
+        tx_1 = player_images[count // 5]
+        renderer.blit(tx_1, dstrect=(player_x, player_y))
     elif direction == 1:
-        tx_2 = Texture(renderer, player_images[count // 5])
-        renderer.copy(tx_2, dstrect=(player_x, player_y), angle=180)
+        tx_2 = player_images[count // 5]
+        renderer.blit(tx_2, dstrect=(player_x, player_y), angle=180)
     elif direction == 2:
-        tx_3 = Texture(renderer, player_images[count // 5])
-        renderer.copy(tx_3, dstrect=(player_x, player_y), angle=270)
+        tx_3 = player_images[count // 5]
+        renderer.blit(tx_3, dstrect=(player_x, player_y), angle=270)
     elif direction == 3:
-        tx_4 = Texture(renderer, player_images[count // 5])
-        renderer.copy(tx_4, dstrect=(player_x, player_y), angle=90)
+        tx_4 = player_images[count // 5]
+        renderer.blit(tx_4, dstrect=(player_x, player_y), angle=90)
 
 def check_position(centerx, centery, direction, WIDTH, HEIGHT, level):
     """
@@ -109,38 +113,24 @@ def check_target(level, WIDTH, HEIGHT, score, player_x, center_x, center_y, powe
             dead_ghosts = [False, False, False, False, False, False, False]
     return score, power, power_cnt, dead_ghosts
 
-def draw_counter(renderer, scor, power, live, game_over, game_win):
+def draw_counter(renderer, scor, power, live, game_over, game_win, player_images, factory):
     """
     Отрисовка счетчика, надписи проигрыша/выигрыша.
     """
-    text_color = Color(255, 255, 255)
-    text_over_color = Color(255, 0, 0)
-    text_win_color = Color(244, 164, 96)
-
-    font = FontTTF("./Source/Font/better-vcr-5.4.ttf", "15px", text_color)
-    font_over = FontTTF("./Source/Font/better-vcr-5.4.ttf", "50px", text_over_color)
-    font_win = FontTTF("./Source/Font/better-vcr-5.4.ttf", "50px", text_win_color)
-
-    txt = f'Очки: {scor}'
-    txt_rendered = font.render_text(txt)
-    tx_text = Texture(renderer, txt_rendered)
-    renderer.copy(tx_text, dstrect=(10, 920))
+    tx_text = factory.from_text(f'Очки: {scor}', fontmanager=font_manager_scor)
+    renderer.blit(tx_text, dstrect=(10, 920))
     if power:
-        tx_power = Texture(renderer, load_image(b"Source/Images/power.png"))
-        renderer.copy(tx_power, dstrect=(140, 915))
-    tx_live = Texture(renderer, player_images[4])
+        tx_power = factory.from_image(f'Source/Images/power.png')
+        renderer.blit(tx_power, dstrect=(140, 915))
+    tx_live = player_images[4]
     for i in range(live):
-        renderer.copy(tx_live, dstrect=(650 + i * 40, 915))
+        renderer.blit(tx_live, dstrect=(650 + i * 40, 915))
     if game_over:
-        txt_over = f'Вы проиграли :('
-        txt_over_rendered = font_over.render_text(txt_over)
-        tx_text_over = Texture(renderer, txt_over_rendered)
-        renderer.copy(tx_text_over, dstrect=(200, 425))
+        tx_text_over = factory.from_text(f'Вы проиграли :(', fontmanager=font_manager_over)
+        renderer.blit(tx_text_over, dstrect=(200, 425))
     if game_win:
-        txt_win = f'Вы выиграли!'
-        txt_win_rendered = font_win.render_text(txt_win)
-        tx_text_win = Texture(renderer, txt_win_rendered)
-        renderer.copy(tx_text_win, dstrect=(200, 425))
+        tx_text_win = factory.from_text(f'Вы выиграли!', fontmanager=font_manager_win)
+        renderer.blit(tx_text_win, dstrect=(200, 425))
 
 def get_targets_4(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y,
                   player_x, player_y, powerup, dead_ghost, blinky, inky, pinky, clyde):
