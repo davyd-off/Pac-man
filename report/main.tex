@@ -23,7 +23,7 @@
 
 Также в отчёте приведены общие сведения об игре Pac-man.
 
-Наряду с этим представлены проверка работспособности программы, диаграмма UML, полный код программы.}
+Наряду с этим представлены проверка работспособности программы, блок-схема, полный код программы.}
 \abstractEN{The report contains information about the course work.
 
 The course work is to create a cross-platform program that is a Pac-man game.
@@ -32,7 +32,7 @@ The report describes the library, tools, and version control system used to writ
 
 The report also provides general information about the Pac-man game.
 
-Along with this, a program health check, a UML diagram, and the full program code are presented.}
+Along with this, a program health check, a flowchart, and the full program code are presented.}
 \keysRU{программа, игра, пакман, алгоритм, кроссплатформенная программа}
 \keysEN{program, game, pacman, algorithm, cross-platform program}
 
@@ -59,14 +59,14 @@ Along with this, a program health check, a UML diagram, and the full program cod
 
 Разработка кроссплатформенной программы на языке программирования Python может послужить хорошим стимулом как для более глубокого изучения программирования, так и для понимания сборки программы под различные платформы.
 
-Разработка игры в жанре "Аркада" позволяет сформировать представление о самом её "скелете", о её графической составляющей, о правильном построении алгоритмов.
+Разработка игры в жанре <<Аркада>> позволяет сформировать представление о самом её <<скелете>>, о её графической составляющей, о правильном построении алгоритмов.
 
 По сей день аркадные игры популярны среди игроков различных возрастов, так как они позволяют скоротать время в поездке или, например, на лекции или на скучном собеседовании. Разработка такой игры может быть актуальной, так как на рынке существует множество игр этого жанра, но мало качественных проектов, которые могут предложить что-то новое и интересное.
 
 \textbf{Цель:}
 Создать кроссплатформенную игру Pac-man с использованием языка программирования Python3 и библиотеки PySDL2.
 
-\textbf{Задачи:}
+\textbf{\label{zadachi}Задачи:}
 \begin{enumerate}
 	\item Изучить графическую библиотеку PySDL2.
 	\item Изучить алгоритмы игры Pac-man.
@@ -74,7 +74,6 @@ Along with this, a program health check, a UML diagram, and the full program cod
 	\item Научиться работать в среде разработки программного обеспечения Microsoft VS Code.
 	\item Разобраться во взаимодействии компьютерной графики с аппаратным или программным обеспечением.
 	\item Изучить принцип ООП в Python.
-	\item Изучить сборку программы на языке Python.
 	\item Закрепить навыки в работе с системой компьютерной вёрстки \TeX и его расширения \XeTeX.
 \end{enumerate}
 
@@ -85,6 +84,27 @@ Along with this, a program health check, a UML diagram, and the full program cod
 
 \chapter*{Заключение}
 \phantomsection\addcontentsline{toc}{chapter}{ЗАКЛЮЧЕНИЕ}
+В ходе выполнения лабораторной работы была создана кроссплатформенная программа с использованием языка программирования Python3 и библиотеки PySDL2.
+
+Программа создавалась в объектно-ориентированной парадигме.
+
+Программа представляет собой аркадную игру Pac-man.
+
+Кнопки, экраны <<Помощь>> и <<Начать игру>>, пакман, призраки, точки, карты -- все эти объекты были добавлены в программу. Кнопки срабатывают при нажатии на них, при этом меняется экран. Выбор карты и количества призраков успешно выполняется. Пакман управляется стрелками, призраки гоняются за ним. Все взаимодействия между пакманом, точками, призраками и лабиринтом успешно отрабатываются. 
+
+Программы выполнена в соответствии с \texttt{Техническим заданием} на странице~\pageref{sec:ch01/sec01}.
+
+Были решены все поставленные задачи (см. \texttt{Задачи} на стр.~\pageref{zadachi}).
+
+Разработка программы и отчёта производилась с использованием системы контроля версий Git, а именно с помощью онлайн-хранилища GitHub.
+
+По коду программы была создана блок-схема %(см. на стр.~\pageref{}).
+
+Проверка работоспособности программы была проведена успешно (см. \texttt{Проверка работоспособности программы} на стр.~\pageref{sec:ch02/sec02}).
+
+Отчёт оформлен с помощью системы компьютерной вёрстки \TeX{} и его расширения \XeTeX{} из дистрибутива \textit{TeX Live}.
+
+Ссылка на репозиторий проекта:~\textcolor{blue}{\url{https://github.com/davyd-off/Pac-man}}
 
 \newpage
 \phantomsection\addcontentsline{toc}{chapter}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ}
@@ -100,6 +120,75 @@ Along with this, a program health check, a UML diagram, and the full program cod
 	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/main.py}
 \end{code}
 
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий класс для создания игрового меню.}\label{code:menu}
+	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/button.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 1 карта.}\label{code:b1}
+\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_1.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 2 карта.}\label{code:b2}
+\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_2.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 3 карта.}\label{code:b3}
+\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_3.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python} для отрисовки карты.}\label{code:level}
+\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/level.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python} с функциями пакмана.}\label{code:player}
+	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/player.py}
+\end{code}
+
+\begin{code}
+	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий класс для создания призраков.}\label{code:ghost}
+	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/ghost.py}
+\end{code}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{images/1.png}
+	\caption{Главное меню игры.}
+	\label{fig2}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{images/2.png}
+	\caption{Раздел <<Помощь>>.}
+	\label{fig3}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{images/3.png}
+	\caption{Раздел <<Начать игру>>.}
+	\label{fig4}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{images/4.png}
+	\caption{Начальное игровое поле для 1-ой карты и 4-ёх призраков.}
+	\label{fig5}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{images/5.png}
+	\caption{Пример ситуации.}
+	\label{fig6}
+\end{figure}
 
 \end{document}
 
