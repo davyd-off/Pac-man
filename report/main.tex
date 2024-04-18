@@ -92,15 +92,15 @@ Along with this, a program health check, a flowchart, and the full program code 
 
 Кнопки, экраны <<Помощь>> и <<Начать игру>>, пакман, призраки, точки, карты -- все эти объекты были добавлены в программу. Кнопки срабатывают при нажатии на них, при этом меняется экран. Выбор карты и количества призраков успешно выполняется. Пакман управляется стрелками, призраки гоняются за ним. Все взаимодействия между пакманом, точками, призраками и лабиринтом успешно отрабатываются. 
 
-Программы выполнена в соответствии с \texttt{Техническим заданием} на странице~\pageref{sec:ch01/sec01}.
+Программы выполнена в соответствии с \textbf{\textsc{Техническим заданием}} на странице~\pageref{sec:ch01/sec01}.
 
-Были решены все поставленные задачи (см. \texttt{Задачи} на стр.~\pageref{zadachi}).
+Были решены все поставленные задачи (см. \textbf{\textsc{Задачи}} на стр.~\pageref{zadachi}).
 
 Разработка программы и отчёта производилась с использованием системы контроля версий Git, а именно с помощью онлайн-хранилища GitHub.
 
 По коду программы была создана блок-схема (см. на стр.~\pageref{fig7}~\pageref{fig8}).
 
-Проверка работоспособности программы была проведена успешно (см. \texttt{Проверка работоспособности программы} на стр.~\pageref{sec:ch02/sec02}).
+Проверка работоспособности программы была проведена успешно (см. \textbf{\textsc{Проверка работоспособности программы}} на стр.~\pageref{sec:ch02/sec02}).
 
 Отчёт оформлен с помощью системы компьютерной вёрстки \TeX{} и его расширения \XeTeX{} из дистрибутива \textit{TeX Live}.
 
@@ -117,42 +117,42 @@ Along with this, a program health check, a flowchart, and the full program code 
 
 \begin{code}
 	\captionof*{listing}{Главный файл игры Pac-Man на языке \textit{Python} с использованием библиотеки \textit{PySDL2}~\pageref{pysdl2}.}\label{code:main}
-	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/main.py}
+	\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/main.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий класс для создания игрового меню.}\label{code:menu}
-	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/button.py}
+	\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/button.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 1 карта.}\label{code:b1}
-\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_1.py}
+\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/board_1.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 2 карта.}\label{code:b2}
-\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_2.py}
+\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/board_2.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий двумерный массив, по которому отрисовывается 3 карта.}\label{code:b3}
-\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/board_3.py}
+\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/board_3.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python} для отрисовки карты.}\label{code:level}
-\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/level.py}
+\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/level.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python} с функциями пакмана.}\label{code:player}
-	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/player.py}
+	\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/player.py}
 \end{code}
 
 \begin{code}
 	\captionof*{listing}{Файл игры Pac-Man на языке \textit{Python}, содержащий класс для создания призраков.}\label{code:ghost}
-	\inputminted[mathescape,linenos,frame=lines,breaklines]{Python}{src/ghost.py}
+	\inputminted[mathescape,linenos,frame=lines,fontsize=\tiny,breaklines]{Python}{src/ghost.py}
 \end{code}
 
 \begin{figure}[H]
