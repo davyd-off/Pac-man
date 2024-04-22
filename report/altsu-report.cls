@@ -393,8 +393,7 @@
   \end{center}
   
   Полный объём работы составляет \formbytotal{TotPages}{страниц}{у}{ы}{}, включая
-  8 рисунков и
-  \formbytotal{totalcount@table}{таблиц}{у}{ы}{}.
+  9 рисунков.
   
   \@abstractRU
   
@@ -407,8 +406,7 @@
     ABSTRACT
   \end{center}
   
-  The total amount of work is \formbytotal{TotPages}{page}{}{}{'s}, include
-  \formbytotal{totalcount@figure}{image}{}{}{'s} and \formbytotal{totalcount@table}{table}{}{}{'s}.
+  The total amount of work is \formbytotal{TotPages}{page}{}{}{'s}, include 9 image's.
   
   \@abstractEN
   
